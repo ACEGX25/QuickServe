@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AppApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="DATASOURCE" value="jdbc:postgresql://localhost:5432/quickserve" />
+      <env name="DATAUSER" value="quickserve_user" />
+      <env name="DATAPASS" value="kkaditya@123" />
+      <env name="JWTS" value="eRocbbccLSiE8vXZTEVXcbqaQ+MXOZ3UFKg7c/7ecbHu7vBgNzU4R5b68oTkHptzodFSQTuiCBNwz1N5ye3t4Q== " />
+      <env name="JWTEX" value="3600000 " />
+    </envs>
+    <module name="app" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.quickserve.app.AppApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
