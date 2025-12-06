@@ -27,7 +27,7 @@ export default function Register() {
 
       <form className="form" onSubmit={handleSubmit}>
         
-        {/* Username */}
+        
         <label className="input-pill">
           <FaUserAlt />
           <input
@@ -37,7 +37,7 @@ export default function Register() {
           />
         </label>
 
-        {/* Password */}
+
         <label className="input-pill">
           <FaKey />
           <input
@@ -48,7 +48,7 @@ export default function Register() {
           />
         </label>
 
-        {/* Confirm Password */}
+        
         <label className="input-pill">
           <FaKey />
           <input
@@ -59,7 +59,7 @@ export default function Register() {
           />
         </label>
 
-        {/* Role Selection */}
+        
         <label className="input-pill">
           <FaUser />
           <select name="role" onChange={handleChange}>
