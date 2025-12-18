@@ -1,0 +1,65 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.app-bg {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, #29a9ff, #9fd7ff, #cfefff);
+}
+
+.card-wrapper {
+    width: 380px;
+}
+
+.card {
+    background: white;
+    padding: 32px;
+    border-radius: 28px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.brand {
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #0c8be6;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form { display: flex; flex-direction: column; gap: 15px; }
+
+.input-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #eaf6ff;
+    padding: 12px;
+    border-radius: 30px;
+}
+
+.input-pill input,
+.input-pill select {
+    border: none;
+    outline: none;
+    background: none;
+    flex: 1;
+}
+
+.cta {
+    padding: 12px;
+    border-radius: 25px;
+    background: #0b8de3;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+.links {
+    text-align: center;
+    margin-top: 10px;
+}

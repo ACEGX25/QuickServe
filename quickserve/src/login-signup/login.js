@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import Card from "../components/card";
 import { FaUserAlt, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
+import "./login.css"
 
 const API_BASE = "http://localhost:8080";
 
@@ -9,8 +10,8 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [status, setStatus] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  function handleChange(e) {
+  const navigate = useNavigate();
+    function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -38,6 +39,16 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("detailsFilled",data.detailsFilled);
+
+      const isProvider = data.role.includes("PROVIDER");
+        if (isProvider) {
+            if (!data.detailsFilled) {
+                navigate("/provider/onboard");
+            } else {
+                navigate("/provider/homepage");
+            }
+        }
 
       setStatus("Login success!");
     } catch (err) {
@@ -45,8 +56,8 @@ export default function Login() {
       setStatus("Network error");
     }
   }
-
-  return (
+    return (
+      <div className="app-bg">
       <Card>
         <h1 className="brand">Quickserve</h1>
         <p className="subtitle">Sign in to your account</p>
@@ -102,5 +113,6 @@ export default function Login() {
           <div style={{ marginTop: 12 }}>{status}</div>
         </form>
       </Card>
+      </div>
   );
 }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String token;
     private String role;
+    private boolean detailsFilled;
 
     public String getToken() {
         return token;
@@ -26,4 +27,5 @@ public class AuthResponse {
     public void setRole(String role) {
         this.role = role;
     }
+
 }

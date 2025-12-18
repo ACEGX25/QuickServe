@@ -4,6 +4,7 @@ import com.quickserve.app.dto.AuthResponse;
 import com.quickserve.app.dto.LoginRequest;
 import com.quickserve.app.dto.RegisterRequest;
 import com.quickserve.app.model.User;
+import com.quickserve.app.repository.UserRepository;
 import com.quickserve.app.service.UserService;
 import com.quickserve.app.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,11 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
+
+
     // ---------------- REGISTER ----------------
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -51,9 +57,12 @@ public class AuthController {
 
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String token = jwtUtil.generateToken(userDetails);
+        String username = userDetails.getUsername();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         return ResponseEntity.ok(
-                new AuthResponse(token, userDetails.getAuthorities().toString())
+                new AuthResponse(token, userDetails.getAuthorities().toString(),user.isDetailsFilled())
         );
     }
 }

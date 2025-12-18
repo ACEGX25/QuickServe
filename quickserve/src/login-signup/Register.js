@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "../components/card";
 import { FaUserAlt, FaKey, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
+import "./login.css"
 
 const API_BASE = "http://localhost:8080";
 
@@ -59,6 +60,7 @@ export default function Register() {
   }
 
   return (
+      <div className="app-bg">
       <Card>
         <h1 className="brand">Quickserve</h1>
         <p className="subtitle">Create your account</p>
@@ -164,5 +166,6 @@ export default function Register() {
           <div style={{ marginTop: 12 }}>{status}</div>
         </form>
       </Card>
+      </div>
   );
 }
