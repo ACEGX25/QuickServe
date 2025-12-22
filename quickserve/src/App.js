@@ -8,6 +8,8 @@ import CreateListing from "./CreateListings/CreateLisiting"
 import EditListing from "./EditListing/EditListing"
 import Home from "./Home/Home"
 import Search from "./SearchResult/SearchResult"
+import BookingConfirm from "./BookingConfirm/BookingConfirm";
+import MyBookings from "./MyBookings/MyBookings";
 
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
             <Route path="/search-results" element={< Search/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/bookingconfirm" element={<BookingConfirm />} />
             <Route path="provider/onboard" element={<Onboarding />} />
             <Route path="provider/homepage" element={< ServiceDash/>} />
             <Route path="provider/create" element={< CreateListing/>} />
