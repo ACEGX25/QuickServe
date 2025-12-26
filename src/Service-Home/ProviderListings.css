@@ -1,0 +1,361 @@
+.provider-listings-page {
+  min-height: 100vh;
+  background: #f9fafb;
+  font-family: Inter, sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  animation: slideDown 0.35s ease;
+
+  padding: 16px 32px;
+  min-height: 72px;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  animation: slideDown 0.35s ease;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.logo-underline {
+  display: block;
+  width: 100px;
+  height: 3px;
+  background: #2563eb;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+.nav-links span {
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  margin-right: 18px;
+}
+
+.nav-links .active {
+  color: #000;
+  font-weight: 600;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-icon {
+  font-size: 42px;
+  color: #2563eb;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.profile-icon:hover {
+  transform: scale(1.1);
+}
+
+/* ================= DROPDOWN ================= */
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  background: white;
+  width: 180px;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: dropdownFade 0.2s ease;
+}
+
+.profile-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.profile-item:hover {
+  background: #f3f4f6;
+}
+
+/* ================= WELCOME ================= */
+
+.welcome-section {
+  max-width: 1200px;
+  margin: 28px auto 16px;
+  padding: 26px 32px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.4s ease;
+}
+
+.welcome-section h2 {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.welcome-section p {
+  font-size: 15px;
+  opacity: 0.95;
+  max-width: 600px;
+}
+
+/* ================= CONTENT ================= */
+
+.content {
+  max-width: 1200px;
+  margin: auto;
+  padding: 32px 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.page-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ================= BUTTONS ================= */
+
+.primary-btn {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  color: white;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+}
+
+/* ================= GRID ================= */
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 26px;
+}
+
+/* ================= CARD ================= */
+
+.listing-card {
+  background: white;
+  padding: 22px;
+  border-radius: 22px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+  animation: slideUpFade 0.5s ease forwards;
+  animation-delay: calc(var(--i) * 0.06s);
+  opacity: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.listing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+}
+
+.listing-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.listing-category {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 14px;
+  font-size: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 999px;
+}
+
+.listing-price {
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ================= ACTIONS ================= */
+
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+  padding: 9px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edit-btn {
+  background: #e0f2fe;
+}
+
+.edit-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+}
+
+.delete-btn {
+  background: #fee2e2;
+}
+
+.delete-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+/* ================= EMPTY STATE ================= */
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 16px;
+}
+
+.empty-state h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 8px 0 20px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .welcome-section {
+    padding: 22px;
+  }
+}
