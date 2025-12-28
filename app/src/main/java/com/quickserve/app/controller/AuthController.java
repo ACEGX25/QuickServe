@@ -60,7 +60,7 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return ResponseEntity.ok(
-                new AuthResponse(token, userDetails.getAuthorities().toString(),user.isDetailsFilled())
+                new AuthResponse(token, userDetails.getAuthorities().toString(),user.isDetailsFilled(), user.getEmail())
         );
     }
 }
