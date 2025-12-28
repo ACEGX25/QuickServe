@@ -1,7 +1,6 @@
 package com.quickserve.app.booking.entity;
-
 import jakarta.persistence.*;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
@@ -11,16 +10,16 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private Long customerId;
     private Long providerId;
-    private Long serviceListingId;
 
-    private OffsetDateTime startTime;
-    private OffsetDateTime endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
+<<<<<<< HEAD
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -100,4 +99,25 @@ public class Booking {
     public void setStatus(BookingStatus status) {
         this.status = status;
     }
+=======
+    // 🔽 GETTERS & SETTERS
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Long getCustomerId() { return customerId; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+
+    public Long getProviderId() { return providerId; }
+    public void setProviderId(Long providerId) { this.providerId = providerId; }
+
+    public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public BookingStatus getStatus() { return status; }
+    public void setStatus(BookingStatus status) { this.status = status; }
+>>>>>>> 4cb25f9 (Add Booking, Calendar, and Notification modules)
 }
