@@ -1,38 +1,139 @@
-.App {
-  text-align: center;
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f6f8;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.page {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 40px;
+}
+
+.main-card {
+  background: white;
+  width: 1000px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 24px;
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+/* layout */
+.content {
+  display: flex;
+  gap: 24px;
+}
+
+/* calendar card */
+.calendar {
+  flex: 1;
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.calendar h3 {
+  margin-bottom: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  padding: 10px;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #e9ecef;
+}
+
+.day.available {
+  background: #e7f6ee;
+  color: #1c7c4c;
+}
+
+.day.full {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.day.blocked {
+  background: #fde2e2;
+  color: #842029;
+}
+
+.day.selected {
+  outline: 2px solid #0d6efd;
+}
+
+.legend {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+/* availability card */
+.slots {
+  flex: 1;
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.slot {
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.slot.available {
+  background: #e7f6ee;
+}
+
+.slot.full {
+  background: #fff3cd;
+}
+
+.slot.blocked {
+  background: #fde2e2;
+}
+
+.block-day,
+.add-slot {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #0d6efd;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.confirm-btn {
+  background: #0d6efd;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
+
