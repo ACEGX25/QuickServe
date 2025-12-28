@@ -1,11 +1,18 @@
-package com.quickserve.app.booking.dto;
+package com.quickserve.app.dto;
+
+import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
 public class BookingRequest {
 
+    @NotNull
     private Long serviceListingId;
+
+    @NotNull
     private OffsetDateTime startTime;
+
+    @NotNull
     private OffsetDateTime endTime;
 
     // ===== GETTERS =====
