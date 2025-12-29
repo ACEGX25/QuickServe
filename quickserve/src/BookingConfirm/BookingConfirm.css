@@ -220,3 +220,10 @@ hr {
     transform: translate(-50%, 0);
   }
 }
+
+.booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+

@@ -147,6 +147,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // ✅ PROVIDER REJECT BOOKING
+    // ✅ PROVIDER REJECT BOOKING
     @Override
     @Transactional
     public Booking rejectBookingByEmail(Long bookingId, String email) {
@@ -166,9 +167,12 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalStateException("Only PENDING bookings can be rejected");
         }
 
-        booking.setStatus(BookingStatus.REJECTED);
+        // 🔥 IMPORTANT FIX
+        booking.setStatus(BookingStatus.CANCELLED);
+
         return bookingRepository.save(booking);
     }
+
 
 
 

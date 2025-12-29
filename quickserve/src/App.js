@@ -8,24 +8,37 @@ import CreateListing from "./CreateListings/CreateLisiting"
 import EditListing from "./EditListing/EditListing"
 import Home from "./Home/Home"
 import Search from "./SearchResult/SearchResult"
-import BookingConfirm from "./BookingConfirm/BookingConfirm";
+import BookingCalendar from "./components/BookingCalendar";
+import UpdateProfile from "./Service-Home/UpdateProfile";
+import Confirm from "./BookingConfirm/BookingConfirm";
+import Availability from "./Provider-Calendar/Availability";
 import MyBookings from "./MyBookings/MyBookings";
+import Penrequests from "./BookingRequest/ProviderBookingRequests"
 
 
 function App() {
   return (
     <BrowserRouter>
         <Routes>
-            <Route path="/" element={<Home />} />
+
+            <Route path="/" element={<Login />} />
             <Route path="/search-results" element={< Search/>} />
           <Route path="/login" element={<Login />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-            <Route path="/bookingconfirm" element={<BookingConfirm />} />
             <Route path="provider/onboard" element={<Onboarding />} />
             <Route path="provider/homepage" element={< ServiceDash/>} />
             <Route path="provider/create" element={< CreateListing/>} />
             <Route path="provider/edit/:id" element={< EditListing/>} />
+            <Route path="/bookingcalendar" element={<BookingCalendar />} />
+<Route
+          path="/provider/profile"
+          element={<UpdateProfile />}
+        />
+            <Route path="/confirm" element={<Confirm/>}/>
+            <Route path="/availability" element={<Availability/>} />
+            <Route path="/mybookings" element={<MyBookings/>} />
+            <Route path="/pending" element={<Penrequests/>} />
         </Routes>
     </BrowserRouter>
   );

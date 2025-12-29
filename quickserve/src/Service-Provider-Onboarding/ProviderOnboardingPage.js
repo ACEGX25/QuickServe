@@ -10,12 +10,21 @@ export default function ProviderOnboardingPage() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
-                                <span className="text-lg font-bold text-white">Q</span>
-                            </div>
-                            <span className="text-xl font-semibold text-gray-900">
-                QUICKSERVE
-              </span>
+                            
+        {/* Logo */}
+                    <div className="relative inline-block">
+                        <div className="absolute -top-3 left-6 flex gap-1">
+                            {[1, 2, 3, 4].map((i) => (
+                                <span
+                                    key={i}
+                                    className="w-4 h-1 bg-blue-500 rotate-[-25deg] rounded"
+                                />
+                            ))}
+                        </div>
+
+                        <h1 className="text-2xl font-bold tracking-wide">QUICKSERVE</h1>
+                        <span className="absolute left-2 -bottom-2 w-[110px] h-[6px] border-b-2 border-black rounded-full"></span>
+                    </div>
                         </Link>
 
                         <nav className="hidden items-center gap-8 md:flex">

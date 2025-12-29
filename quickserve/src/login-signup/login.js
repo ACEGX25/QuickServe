@@ -41,6 +41,7 @@ export default function Login() {
       localStorage.setItem("role", data.role);
       localStorage.setItem("detailsFilled",data.detailsFilled);
 
+
       const isProvider = data.role.includes("PROVIDER");
         if (isProvider) {
             if (!data.detailsFilled) {
@@ -49,6 +50,9 @@ export default function Login() {
                 navigate("/provider/homepage");
             }
         }
+        else {
+  navigate("/home"); // 👈 NORMAL USERS GO HERE
+}
 
       setStatus("Login success!");
     } catch (err) {
@@ -59,7 +63,32 @@ export default function Login() {
     return (
       <div className="app-bg">
       <Card>
-        <h1 className="brand">Quickserve</h1>
+        {/* Logo */}
+<div className="flex justify-center mb-6">
+  <div className="relative inline-block text-center">
+    {/* Top slanted bars */}
+    <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-1">
+      {[1, 2, 3, 4].map((i) => (
+        <span
+          key={i}
+          className="w-5 h-1.5 bg-blue-500 rotate-[-25deg] rounded"
+        />
+      ))}
+    </div>
+
+    {/* Brand text */}
+    <h1 className="text-4xl font-extrabold tracking-wider">
+      QUICKSERVE
+    </h1>
+
+    {/* Bottom underline */}
+    <span className="absolute left-1/2 -translate-x-1/2 -bottom-3 w-[160px] h-[8px] border-b-2 border-black rounded-full"></span>
+  </div>
+</div>
+
+
+
+
         <p className="subtitle">Sign in to your account</p>
 
         <form className="form" onSubmit={handleSubmit}>

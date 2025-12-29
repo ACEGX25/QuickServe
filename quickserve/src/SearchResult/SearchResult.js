@@ -1,24 +1,27 @@
 import { MapPin, SlidersHorizontal } from "lucide-react";
 import "./SearchResult.css";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const API_BASE = "http://localhost:8080";
 
 export default function SearchResults() {
+    const navigate = useNavigate();
+
     const [selectedCategory, setSelectedCategory] = useState("");
     const [sortBy, setSortBy] = useState("");
     const [searchParams] = useSearchParams();
+
     const keyword = searchParams.get("keyword") || "";
     const category = searchParams.get("category") || "";
     const location = searchParams.get("location") || "";
+
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchResults() {
             setLoading(true);
-
             const params = new URLSearchParams();
 
             if (keyword.trim()) params.append("keyword", keyword);
@@ -41,71 +44,40 @@ export default function SearchResults() {
         fetchResults();
     }, [keyword, category, location]);
 
-
     if (loading) return <p>Loading...</p>;
-
 
     return (
         <div className="search-page">
-            {/* Header */}
             <header className="search-header">
-                <h1 className="logo">Quickserve</h1>
-                <div className="header-actions">
-                    <button className="ghost-btn">Sign In</button>
-                    <button className="primary-btn">Sign Up</button>
+                <div className="relative inline-block ml-20">
+                    <h1 className="text-2xl font-bold tracking-wide">QUICKSERVE</h1>
                 </div>
             </header>
 
-            {/* Main */}
             <main className="search-content">
                 <div className="search-title">
                     <h2>
                         Search results for{" "}
                         <span className="highlight">"{keyword || "All Services"}"</span>
                     </h2>
-
                     <p>{results.length} services found</p>
                 </div>
 
-                {/* Filters (visual only) */}
-                <div className="filters">
-                <button className="outline-btn">
-                        <SlidersHorizontal size={16} />
-                        Filters
-                    </button>
-
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                        <option value="">Category</option>
-                    </select>
-
-                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                        <option value="">Sort by</option>
-                    </select>
-                </div>
-
-                {/* Results */}
                 {results.length === 0 ? (
                     <div className="empty-state">
                         <h3>No services found</h3>
-                        <p>
-                            Try changing your search, location, or filters to find available
-                            services.
-                        </p>
                     </div>
                 ) : (
                     <div className="results-grid">
                         {results.map((service) => (
                             <div key={service.id} className="service-card">
-                                <img src="/housecleaning.png" alt={service.title}/>
+                                <img src="/housecleaning.png" alt={service.title} />
 
                                 <div className="card-body">
                                     <h3>{service.title}</h3>
 
                                     <div className="location">
-                                        <MapPin size={14}/>
+                                        <MapPin size={14} />
                                         <span>{service.location}</span>
                                     </div>
 
@@ -114,11 +86,22 @@ export default function SearchResults() {
                                             <small>Starting from</small>
                                             <strong>₹{service.price}</strong>
                                         </div>
-                                        <button className="primary-btn">Book Now</button>
+
+                                        <button
+                                            className="primary-btn"
+                                            onClick={() =>
+                                                navigate("/bookingcalendar", {
+                                                    state: {
+                                                        serviceListingId: service.id
+                                                    }
+                                                })
+                                            }
+                                        >
+                                            Book Now
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
                         ))}
                     </div>
                 )}
