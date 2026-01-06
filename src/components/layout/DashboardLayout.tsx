@@ -183,7 +183,7 @@ export const DashboardLayout = ({
         <div className="mt-auto p-4 border-t space-y-3">
           {role === "customer" && (
             <Link
-              to="/customer/settings"
+              to="/customerprofile"
               className="flex items-center gap-3 text-muted-foreground hover:text-green-600"
             >
               <Settings className="h-5 w-5" />
@@ -200,6 +200,7 @@ export const DashboardLayout = ({
           </button>
         </div>
       </motion.aside>
+      {/* SIDEBAR */}
 
       {/* MAIN CONTENT */}
       <main

@@ -30,7 +30,7 @@ const navItems = [
   { icon: Home, label: "Dashboard", path: "/provider" },
   { icon: Calendar, label: "Bookings", path: "/provider/bookings" },
   { icon: Star, label: "Reviews", path: "/provider/reviews" },
-  { icon: Settings, label: "Settings", path: "/provider/settings" },
+  { icon: Settings, label: "Settings", path: "/providerprofile" },
 ];
 
 const services = [

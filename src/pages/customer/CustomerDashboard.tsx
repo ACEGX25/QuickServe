@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 import {
   Search,
   MapPin,
@@ -28,9 +30,10 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/customer" },
   { icon: Search, label: "Browse Services", path: "/customer/browse" },
-  { icon: Calendar, label: "My Bookings", path: "/customer/bookings" },
+  { icon: Calendar, label: "My Bookings", path: "/booking/confirm/:id" },
   { icon: Star, label: "Reviews", path: "/ReviewComponents" },
 ];
+
 
 const categories = [
   { id: "all", label: "All Services", icon: Zap },
@@ -45,71 +48,78 @@ const services = [
   {
     id: 1,
     name: "Professional Plumbing",
+    slug: "plumbingservice",
+
     provider: "Mike's Plumbing",
     category: "home",
     rating: 4.9,
     reviews: 128,
     price: 75,
     priceUnit: "hour",
-    image: "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=400&h=300&fit=crop",
+    image: "/plumbing.jpg",
     available: true,
     location: "2.3 km away",
   },
   {
     id: 2,
     name: "Car Detailing",
+    slug: "carservice",
     provider: "Shine Auto Care",
     category: "auto",
     rating: 4.8,
     reviews: 95,
     price: 120,
     priceUnit: "service",
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400&h=300&fit=crop",
+    image: "/car.jpg",
     available: true,
     location: "1.8 km away",
   },
   {
     id: 3,
     name: "Hair Styling",
+    slug: "hairstyling",
     provider: "Elegance Salon",
     category: "beauty",
     rating: 4.9,
     reviews: 210,
     price: 50,
     priceUnit: "session",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=300&fit=crop",
-    available: false,
+    image: "/hair.jpg",
+    available: true,
     location: "2.1 km away",
   },
   {
     id: 4,
     name: "Electrical Repairs",
-    provider: "PowerFix Electricians",
+    slug:"electricalservice",
+    provider: "True Spark Electrician",
     category: "repair",
     rating: 4.7,
     reviews: 87,
     price: 55,
     priceUnit: "hour",
-    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
+    image: "/electric.jpg",
     available: true,
     location: "4.5 km away",
   },
   {
     id: 5,
     name: "Legal Consultation",
+    slug:"legalservice",
     provider: "Smith & Associates",
     category: "professional",
     rating: 4.9,
     reviews: 62,
     price: 100,
     priceUnit: "hour",
-    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=300&fit=crop",
+    image: "/legal.jpg",
     available: true,
     location: "3.2 km away",
   },
   {
     id: 6,
     name: "House Cleaning",
+slug: "homecleaningservice",
     provider: "SparkleClean",
     category: "home",
     rating: 4.8,
@@ -123,6 +133,7 @@ const services = [
 {
     id: 7,
     name: "Wall Painting",
+    slug: "paintingservice",
     provider: "Color Experts",
     category: "home",
     rating: 4.7,
@@ -136,7 +147,8 @@ const services = [
 {
     id: 8,
     name: "Event Planning Services",
-    provider: "GreenThumb",
+    slug: "eventservice",
+    provider: "Best Orgranizers",
     category: "home",
     rating: 3.8,
     reviews: 44,
@@ -149,19 +161,21 @@ const services = [
 {
     id: 9,
     name: "Garden Maintenance",
+    slug: "gradeningservice",
     provider: "GreenThumb",
     category: "home",
     rating: 3.8,
     reviews: 44,
     price: 15,
     priceUnit: "hour",
-    image: "/graden.jpg",
+    image:"/graden.jpg",
     available: true,
     location: "3.0 km away",
   },
 ];
 
 const CustomerDashboard = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -332,13 +346,16 @@ const CustomerDashboard = () => {
                             /{service.priceUnit}
                           </span>
                         </div>
-                        <AnimatedButton
-                          className="bg-primary hover:bg-primary/90"
-                          glowOnHover
-                          disabled={!service.available}
-                        >
-                          Book Now
-                        </AnimatedButton>
+                       
+  <AnimatedButton
+  className="bg-primary hover:bg-primary/90"
+  glowOnHover
+  disabled={!service.available}
+  onClick={() => navigate(`/customer/${service.slug}`)}
+>
+  Book Now
+</AnimatedButton>
+
                       </div>
                     </div>
                   </GlassCard>
