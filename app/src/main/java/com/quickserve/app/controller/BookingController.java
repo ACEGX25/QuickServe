@@ -87,4 +87,15 @@ public class BookingController {
                 bookingService.rejectBookingByEmail(bookingId, email)
         );
     }
+
+    @PatchMapping("/{bookingId}/completed")
+    public ResponseEntity<Booking> completeBooking(
+            @PathVariable Long bookingId,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(
+                bookingService.completeBookingByEmail(bookingId, email)
+        );
+    }
 }

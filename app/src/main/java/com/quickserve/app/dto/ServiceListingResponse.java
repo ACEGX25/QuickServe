@@ -2,11 +2,16 @@
 package com.quickserve.app.dto;
 
 import com.quickserve.app.model.Category;
+import com.quickserve.app.model.ServiceListing;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ServiceListingResponse {
 
     private Long id;
@@ -19,4 +24,8 @@ public class ServiceListingResponse {
     // Provider-safe fields
     private Long providerId;
     private String providerName;
+
+    private BigDecimal averageRating;
+    private int ratingCount;
+
 }

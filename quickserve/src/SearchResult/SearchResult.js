@@ -33,7 +33,7 @@ export default function SearchResults() {
                     `${API_BASE}/api/listings/search?${params.toString()}`
                 );
                 const data = await res.json();
-                setResults(data);
+                setResults(data.content || []);
             } catch (err) {
                 console.error(err);
             } finally {

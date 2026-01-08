@@ -3,6 +3,8 @@ package com.quickserve.app.controller;
 import com.quickserve.app.dto.*;
 import com.quickserve.app.service.ListingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,15 +26,17 @@ public class PublicListingController {
     }
 
     /**
-     * Public search
-     * GET /api/listings/search?keyword=clean
+     * Public search (paginated, rating-aware)
+     * GET /api/listings/search?keyword=clean&page=0&size=10
      */
     @GetMapping("/search")
-    public List<ServiceListingResponse> searchListings(
-            @RequestParam(required = false) String keyword
+    public Page<ServiceListingResponse> searchListings(
+            @RequestParam(required = false) String keyword,
+            Pageable pageable
     ) {
-        return listingService.searchListings(keyword);
+        return listingService.searchListings(keyword, pageable);
     }
+
 
     /**
      * Public filter

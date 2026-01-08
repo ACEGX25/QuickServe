@@ -20,4 +20,6 @@ public interface BookingService {
     Booking acceptBookingByEmail(Long bookingId, String email);
 
     Booking rejectBookingByEmail(Long bookingId, String email);
+
+    Booking completeBookingByEmail(Long bookingId, String email);
 }

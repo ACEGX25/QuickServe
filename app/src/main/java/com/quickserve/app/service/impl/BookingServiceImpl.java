@@ -173,7 +173,27 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Override
+    @Transactional
+    public Booking completeBookingByEmail(Long bookingId, String email) {
+        User provider = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Provider not found"));
 
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        if (!booking.getProviderId().equals(provider.getId())) {
+            throw new IllegalStateException("You are not allowed to complete this booking");
+        }
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Only CONFIRMED bookings can be completed");
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+
+        return bookingRepository.save(booking);
+    }
 
 
 }

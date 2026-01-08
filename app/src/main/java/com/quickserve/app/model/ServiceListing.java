@@ -68,4 +68,10 @@ public class ServiceListing {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Column(name = "avg_rating", precision = 2, scale = 1)
+    private BigDecimal avgRating = BigDecimal.valueOf(0.0);
+
+    @Column(name = "rating_count")
+    private Integer ratingCount = 0;
 }

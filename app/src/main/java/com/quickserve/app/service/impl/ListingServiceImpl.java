@@ -9,6 +9,8 @@ import com.quickserve.app.repository.UserRepository;
 import com.quickserve.app.service.ListingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -91,17 +93,11 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public List<ServiceListingResponse> searchListings(String keyword) {
-
-        List<ServiceListing> listings =
-                (keyword == null || keyword.isBlank())
-                        ? listingRepository.findByActiveTrue()
-                        : listingRepository.findByTitleContainingIgnoreCase(keyword);
-
-        return listings.stream()
-                .filter(ServiceListing::isActive)
-                .map(this::mapToResponse)
-                .toList();
+    public Page<ServiceListingResponse> searchListings(
+            String keyword,
+            Pageable pageable
+    ) {
+        return listingRepository.search(keyword, pageable);
     }
 
     @Override
@@ -149,7 +145,8 @@ public class ListingServiceImpl implements ListingService {
                     .collect(Collectors.toList());
         }
 
-        return base.stream().map(this::mapToResponse).toList();
+        return base.stream().map(this::mapToServiceListingResponse).toList();
+
     }
 
     private ServiceListingResponse mapToResponse(ServiceListing listing) {
@@ -245,15 +242,23 @@ public class ListingServiceImpl implements ListingService {
 
     private ServiceListingResponse mapToServiceListingResponse(ServiceListing listing) {
         ServiceListingResponse res = new ServiceListingResponse();
+
         res.setId(listing.getId());
         res.setTitle(listing.getTitle());
         res.setDescription(listing.getDescription());
-        res.setPrice(listing.getPrice());
         res.setLocation(listing.getLocation());
         res.setCategory(listing.getCategory());
+        res.setPrice(listing.getPrice());
+
         res.setProviderId(listing.getProvider().getId());
+        res.setProviderName(listing.getProvider().getUsername());
+
+        res.setAverageRating(listing.getAvgRating());
+        res.setRatingCount(listing.getRatingCount());
+
         return res;
     }
+
 
     private ProviderListingResponse mapToProviderListingResponse(ServiceListing listing) {
         ProviderListingResponse res = new ProviderListingResponse();
