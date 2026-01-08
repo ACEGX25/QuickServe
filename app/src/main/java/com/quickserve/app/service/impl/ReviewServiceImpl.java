@@ -9,7 +9,6 @@ import com.quickserve.app.repository.ReviewRepository;
 import com.quickserve.app.repository.UserRepository;
 import com.quickserve.app.service.ReviewService;
 import jakarta.transaction.Transactional;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,18 +43,17 @@ public class ReviewServiceImpl implements ReviewService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
-        // ✅ OWNERSHIP CHECK
+        // 🔒 Ownership check (VERY IMPORTANT)
         if (!booking.getUserId().equals(user.getId())) {
-            throw new AccessDeniedException("You cannot review this booking");
+            throw new IllegalStateException("You cannot review someone else's booking");
         }
 
         if (booking.getStatus() != BookingStatus.COMPLETED) {
             throw new IllegalStateException("Booking is not completed");
         }
 
-        // ✅ DOUBLE REVIEW CHECK
-        if (reviewRepository.existsByBookingAndUser(booking, user)) {
-            throw new IllegalStateException("Review already submitted");
+        if (reviewRepository.existsByBookingId(bookingId)) {
+            throw new IllegalStateException("Review already exists for this booking");
         }
 
         User provider = userRepository.findById(booking.getProviderId())

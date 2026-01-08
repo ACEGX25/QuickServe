@@ -56,8 +56,6 @@ public class SecurityConfig {
                                 "/api/bookings"
                         ).authenticated()
 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
                         // 🔐 EVERYTHING ELSE
                         .anyRequest().authenticated()
                 )

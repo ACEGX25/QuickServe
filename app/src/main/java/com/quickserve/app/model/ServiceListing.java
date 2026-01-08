@@ -74,8 +74,4 @@ public class ServiceListing {
 
     @Column(name = "rating_count")
     private Integer ratingCount = 0;
-
-    @Column(nullable = false)
-    private boolean approved = false;
-
 }
