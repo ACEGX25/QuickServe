@@ -35,4 +35,37 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // Fetch a booking only if it belongs to the given user
     Optional<Booking> findByIdAndUserId(Long id, Long userId);
+
+
+    long countByStatus(BookingStatus status);
+
+    @Query("""
+    SELECT COUNT(b)
+    FROM Booking b
+    WHERE b.userId = :userId
+""")
+    long countBookingsByUserId(Long userId);
+
+    @Query("""
+    SELECT EXTRACT(MONTH FROM b.createdAt), COUNT(b)
+    FROM Booking b
+    GROUP BY EXTRACT(MONTH FROM b.createdAt)
+    ORDER BY EXTRACT(MONTH FROM b.createdAt)
+""")
+    List<Object[]> getMonthlyBookings();
+
+    @Query("""
+    SELECT
+        EXTRACT(MONTH FROM b.createdAt),
+        COALESCE(SUM(s.price), 0)
+    FROM Booking b
+    JOIN ServiceListing s ON b.serviceListingId = s.id
+    WHERE b.status = com.quickserve.app.model.BookingStatus.CONFIRMED
+    GROUP BY EXTRACT(MONTH FROM b.createdAt)
+    ORDER BY EXTRACT(MONTH FROM b.createdAt)
+""")
+    List<Object[]> getMonthlyRevenue();
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.quickserve.app.service;
 
+import com.quickserve.app.dto.BookingDetailResponse;
 import com.quickserve.app.dto.BookingRequest;
 import com.quickserve.app.model.Booking;
 import jakarta.validation.Valid;
@@ -22,4 +23,6 @@ public interface BookingService {
     Booking rejectBookingByEmail(Long bookingId, String email);
 
     Booking completeBookingByEmail(Long bookingId, String email);
+
+    BookingDetailResponse getMyBookingDetailByEmail(Long bookingId, String email);
 }

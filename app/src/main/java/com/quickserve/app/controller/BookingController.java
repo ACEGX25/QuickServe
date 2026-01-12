@@ -1,5 +1,6 @@
 package com.quickserve.app.controller;
 
+import com.quickserve.app.dto.BookingDetailResponse;
 import com.quickserve.app.dto.BookingRequest;
 import com.quickserve.app.model.Booking;
 import com.quickserve.app.service.BookingService;
@@ -52,6 +53,20 @@ public class BookingController {
                 bookingService.getBookingsForUserByEmail(email)
         );
     }
+
+    @GetMapping("/my/{id}")
+    public ResponseEntity<BookingDetailResponse> getMyBookingDetail(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+
+        BookingDetailResponse response =
+                bookingService.getMyBookingDetailByEmail(id, email);
+
+        return ResponseEntity.ok(response);
+    }
+
 
     // ✅ Get bookings for PROVIDER
     @GetMapping("/provider")

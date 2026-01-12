@@ -80,7 +80,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public List<ServiceListingResponse> getAllActiveListings() {
-        return listingRepository.findByActiveTrue()
+        return listingRepository.findByApprovedTrue()
                 .stream()
                 .map(this::mapToServiceListingResponse)
                 .toList();
@@ -103,7 +103,7 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public List<ServiceListingResponse> filterListings(ListingFilterRequest filter) {
 
-        List<ServiceListing> base = listingRepository.findByActiveTrue();
+        List<ServiceListing> base = listingRepository.findByApprovedTrue();
 
 
         if (filter.getCategory() != null) {
