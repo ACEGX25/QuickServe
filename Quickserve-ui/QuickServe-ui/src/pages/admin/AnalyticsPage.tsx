@@ -21,6 +21,34 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, Legend 
 } from "recharts";
 
+type DashboardResponse = {
+  stats: {
+    totalUsers: number;
+    totalBookings: number;
+    activeBookings: number;
+    totalRevenue: number;
+    averageRating: number;
+  };
+  revenueTrend: { label: string; revenue: number; bookings: number }[];
+  categoryShare: { category: string; percentage: number }[];
+  ratingDistribution: { stars: number; count: number }[];
+  topServices: {
+    serviceName: string;
+    category: string;
+    bookings: number;
+    revenue: number;
+  }[];
+};
+
+const COLORS = [
+  "#3b82f6", // blue
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#8b5cf6", // violet
+];
+
+
 
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/admin" },
@@ -34,79 +62,40 @@ const AnalyticsPage = () => {
   const token = localStorage.getItem("token");
 
   const [period, setPeriod] = useState("6months");
-
-  const [kpis, setKpis] = useState<any>(null);
-  const [monthlyData, setMonthlyData] = useState<any[]>([]);
-  const [servicePerformance, setServicePerformance] = useState<any[]>([]);
-  const [userGrowth, setUserGrowth] = useState<any[]>([]);
-  const [ratingDistribution, setRatingDistribution] = useState<any[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/analytics/summary", {
+    fetch("http://localhost:8080/api/admin/dashboard", {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
-        .then(setKpis);
-  }, [token]);
-
-  useEffect(() => {
-    if (!token) return;
-
-    fetch("http://localhost:8080/api/admin/analytics/trends", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          const formatted = data.labels.map((label: string, i: number) => ({
-            month: label,
-            revenue: data.revenue[i],
-            bookings: data.bookings[i],
-          }));
-
-          setMonthlyData(formatted);
-        });
+        .then(setDashboard);
   }, [token, period]);
 
-  useEffect(() => {
-    if (!token) return;
+  const monthlyData =
+      dashboard?.revenueTrend.map(m => ({
+        month: m.label,
+        revenue: m.revenue,
+        bookings: m.bookings,
+      })) ?? [];
 
-    fetch("http://localhost:8080/api/admin/analytics/services", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          setServicePerformance(
-              data.map((row: any[]) => ({
-                name: row[0],
-                bookings: row[1],
-              }))
-          );
-        });
-  }, [token]);
+  const servicePerformance =
+      dashboard?.topServices.map(s => ({
+        name: s.serviceName,
+        bookings: s.bookings,
+      })) ?? [];
+
+  const ratingDistribution =
+      dashboard?.ratingDistribution.map((r, index) => ({
+        rating: `${r.stars} Stars`,
+        count: r.count,
+        color: COLORS[index % COLORS.length],
+      })) ?? [];
 
 
-  useEffect(() => {
-    if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/analytics/ratings", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          setRatingDistribution(
-              data.map((r: any) => ({
-                ...r,
-                color:
-                    r.rating === "5 Stars" ? "hsl(145, 63%, 42%)" :
-                        r.rating === "4 Stars" ? "hsl(145, 50%, 55%)" :
-                            r.rating === "3 Stars" ? "hsl(45, 93%, 47%)" :
-                                r.rating === "2 Stars" ? "hsl(25, 95%, 53%)" :
-                                    "hsl(0, 72%, 51%)",
-              }))
-          );
-        });
-  }, [token]);
+
 
 
   return (
@@ -146,7 +135,7 @@ const AnalyticsPage = () => {
               </div>
               <div className="mt-4">
                 <p className="text-2xl font-bold">
-                  ${kpis?.totalRevenue.toLocaleString()}
+                  ${dashboard?.stats.totalRevenue?.toLocaleString() ?? "0"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">Total Revenue</p>
 
@@ -165,7 +154,7 @@ const AnalyticsPage = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-bold">{kpis?.totalBookings}</p>
+                <p className="text-2xl font-bold">{dashboard?.stats.totalBookings ?? 0}</p>
                 <p className="text-sm text-muted-foreground mt-1">Total Bookings</p>
 
               </div>
@@ -183,7 +172,7 @@ const AnalyticsPage = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-bold">{kpis?.totalUsers}</p>
+                <p className="text-2xl font-bold">{dashboard?.stats.totalUsers ?? 0}</p>
                 <p className="text-sm text-muted-foreground mt-1">Total Users</p>
 
               </div>
@@ -201,7 +190,7 @@ const AnalyticsPage = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-bold">{kpis?.avgRating}</p>
+                <p className="text-2xl font-bold">{dashboard?.stats.averageRating?.toFixed(1) ?? "0.0"}</p>
                 <p className="text-sm text-muted-foreground mt-1">Avg Rating</p>
               </div>
             </CardContent>

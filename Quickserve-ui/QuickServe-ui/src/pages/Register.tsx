@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 
 type UserRole = "customer" | "provider" | "admin";
 
+const API_BASE = "http://localhost:8080"
+
 const roles = [
   {
     id: "customer" as UserRole,
@@ -92,6 +94,7 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!formData.role) {
       toast({
         title: "Select a role",
@@ -102,21 +105,50 @@ const Register = () => {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      const roleEnum = formData.role.toUpperCase(); // CUSTOMER | PROVIDER | ADMIN
+
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          username: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: roleEnum,
+        }),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        toast({
+          title: "Registration failed",
+          description: msg || "Something went wrong",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Account created!",
-        description: "Welcome to QuickServe. Redirecting...",
+        description: "You can now login",
       });
-      if (formData.role === "admin") {
-        navigate("/admin");
-      } else if (formData.role === "provider") {
-        navigate("/provider");
-      } else {
-        navigate("/customer");
-      }
-    }, 1500);
+
+      navigate("/login");
+    } catch (err) {
+      toast({
+        title: "Network error",
+        description: "Could not reach server",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+
 
   return (
     <PageTransition>
@@ -412,5 +444,6 @@ const Register = () => {
     </PageTransition>
   );
 };
+
 
 export default Register;

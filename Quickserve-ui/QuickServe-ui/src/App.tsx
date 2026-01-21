@@ -37,6 +37,7 @@ import ReviewsPage from "@/pages/provider/ReviewsPage.tsx";
 import BookingsPage from "@/pages/provider/BookingsPage.tsx";
 import MyServicesPage from "@/pages/provider/MyServicesPage.tsx";
 import ListingStatusPage from "@/pages/provider/ListingStatusPage.tsx";
+import Availability  from "@/pages/provider/Availability.tsx";
 
 
 
@@ -119,8 +120,8 @@ const App = () => (
                         element={<EventService/>}
                     />
                     <Route
-                        path="/CreateReview"
-                        element={<CreateReview/>}
+                        path="/booking/:id/CreateReview"
+                        element={<CreateReview />}
                     />
 
 
@@ -133,6 +134,7 @@ const App = () => (
                     <Route path="/provider/bookings" element={<BookingsPage/>} />
                     <Route path="/provider/services" element={<MyServicesPage/>} />
                     <Route path="/provider/listings" element={<ListingStatusPage/>} />
+                    <Route path="/provider/availability" element={<Availability/>} />
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/*" element={<AdminDashboard />} />
                     <Route path="/admin/users" element={<UsersPage />} />

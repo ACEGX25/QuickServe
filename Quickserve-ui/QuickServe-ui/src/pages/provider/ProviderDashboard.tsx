@@ -15,7 +15,7 @@ import {
   TrendingUp,
   CheckCircle,
   XCircle,
-  AlertCircle, Ticket, WrenchIcon,
+  AlertCircle, Ticket, WrenchIcon, Clock1Icon,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -31,8 +31,9 @@ const navItems = [
   { icon: Calendar, label: "Bookings", path: "/provider/bookings" },
   { icon: Star, label: "Reviews", path: "/provider/reviews" },
   { icon: Settings, label: "Settings", path: "/providerprofile" },
-  {icon : Ticket, label: "Listing", path: "/provider/listings"},
-  {icon: WrenchIcon, label: "Services", path:"/provider/services"}
+  { icon: Ticket, label: "Listing", path: "/provider/listings" },
+  { icon: WrenchIcon, label: "Services", path: "/provider/services" },
+  {icon : Clock1Icon, label: "Availability", path: "/provider/availability"}
 ];
 
 const services = [

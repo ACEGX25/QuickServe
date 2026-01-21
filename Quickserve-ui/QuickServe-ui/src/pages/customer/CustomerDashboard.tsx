@@ -42,10 +42,27 @@ const categories = [
     { id: "professional", label: "Professional", icon: Briefcase },
 ];
 
+type ServiceListing = {
+    id: number;
+    title: string;
+    description: string;
+    location: string;
+    category: string | null;
+    price: number;
+    providerId: number | null;
+    providerName: string;
+    averageRating: number;
+    ratingCount: number;
+    images: string[];
+};
+
+
 const CustomerDashboard = () => {
     const navigate = useNavigate();
 
-    const [services, setServices] = useState<any[]>([]);
+
+
+    const [services, setServices] = useState<ServiceListing[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -55,22 +72,23 @@ const CustomerDashboard = () => {
     useEffect(() => {
         async function fetchListings() {
             try {
-                const res = await fetch("http://localhost:8080/api/listings/search");
+                setLoading(true);
+                const res = await fetch(
+                    `http://localhost:8080/api/listings/search?keyword=${encodeURIComponent(searchQuery)}&page=0&size=9`
+                );
                 const data = await res.json();
-                setServices(data.content || []);
+                setServices(data.content);
             } catch (err) {
                 console.error("Failed to load listings", err);
             } finally {
                 setLoading(false);
             }
         }
-        fetchListings();
-    }, []);
 
-    const filteredServices = services.filter((service) => {
-        const title = service.title?.toLowerCase() || "";
-        return title.includes(searchQuery.toLowerCase());
-    });
+        fetchListings();
+    }, [searchQuery]);
+
+
 
     const toggleFavorite = (id: number) => {
         setFavorites((prev) =>
@@ -147,110 +165,115 @@ const CustomerDashboard = () => {
             </div>
           </FadeInSection>
 
-          {/* Services Grid */}
-          <FadeInSection delay={0.2}>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredServices.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                >
-                  <GlassCard variant="glow" className="p-0 overflow-hidden group">
-                    {/* Image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={service.image}
-                        alt={service.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                      <button
-                        onClick={() => toggleFavorite(service.id)}
-                        className="absolute top-4 right-4 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
-                      >
-                        <Heart
-                          className={cn(
-                            "h-5 w-5 transition-colors",
-                            favorites.includes(service.id)
-                              ? "fill-destructive text-destructive"
-                              : "text-muted-foreground"
-                          )}
-                        />
-                      </button>
-                      <Badge
-                        className={cn(
-                          "absolute bottom-4 left-4",
-                          service.available
-                            ? "bg-primary/90 hover:bg-primary"
-                            : "bg-muted-foreground/90"
-                        )}
-                      >
-                        {service.available ? "Available Now" : "Fully Booked"}
-                      </Badge>
+            {/* Services Grid */}
+            <FadeInSection delay={0.2}>
+                {loading ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                        Loading services…
                     </div>
-
-                    {/* Content */}
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-display font-semibold text-lg text-foreground">
-                            {service.name}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">{service.provider}</p>
-                        </div>
-                        <div className="flex items-center gap-1 text-amber-500">
-                          <Star className="h-4 w-4 fill-current" />
-                          <span className="font-semibold">{service.rating}</span>
-                          <span className="text-muted-foreground text-sm">
-                            ({service.reviews})
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {service.location}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          30-60 min
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-5 w-5 text-primary" />
-                          <span className="text-xl font-bold text-foreground">
-                            {service.price}
-                          </span>
-                          <span className="text-muted-foreground text-sm">
-                            /{service.priceUnit}
-                          </span>
-                        </div>
-
-                          <AnimatedButton
-                              glowOnHover
-                              onClick={() =>
-                                  navigate("/bookingcalendar", {
-                                      state: { serviceListingId: service.id },
-                                  })
-                              }
-                          >
-                              Book Now
-                          </AnimatedButton>
-
-                      </div>
+                ) : services.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                        No services found
                     </div>
-                  </GlassCard>
-                </motion.div>
-              ))}
-            </div>
-          </FadeInSection>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {services.map((service, index) => (
+                            <motion.div
+                                key={service.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                            >
+                                <GlassCard variant="glow" className="p-0 overflow-hidden group">
+                                    {/* Image */}
+                                    <div className="relative h-48 overflow-hidden">
+                                        <img
+                                            src={service.images?.[0] || "/placeholder-service.jpg"}
+                                            alt={service.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
 
-          {filteredServices.length === 0 && (
+                                        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+
+                                        <button
+                                            onClick={() => toggleFavorite(service.id)}
+                                            className="absolute top-4 right-4 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
+                                        >
+                                            <Heart
+                                                className={cn(
+                                                    "h-5 w-5 transition-colors",
+                                                    favorites.includes(service.id)
+                                                        ? "fill-destructive text-destructive"
+                                                        : "text-muted-foreground"
+                                                )}
+                                            />
+                                        </button>
+
+                                        <Badge className="bg-primary/90">Available</Badge>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-5">
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div>
+                                                <h3 className="font-display font-semibold text-lg text-foreground">
+                                                    {service.title}
+                                                </h3>
+                                                <p className="text-muted-foreground text-sm">
+                                                    {service.providerName}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center gap-1 text-amber-500">
+                                                <Star className="h-4 w-4 fill-current" />
+                                                <span className="font-semibold">
+                    {service.ratingCount > 0
+                        ? service.averageRating.toFixed(1)
+                        : "New"}
+                  </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="h-4 w-4" />
+                                                {service.location}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Clock className="h-4 w-4" />
+                                                30–60 min
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-1">
+                                                <DollarSign className="h-5 w-5 text-primary" />
+                                                <span className="text-xl font-bold text-foreground">
+                    {service.price}
+                  </span>
+                                            </div>
+
+                                            <AnimatedButton
+                                                glowOnHover
+                                                onClick={() =>
+                                                    navigate("/bookingcalendar", {
+                                                        state: { serviceListingId: service.id },
+                                                    })
+                                                }
+                                            >
+                                                Book Now
+                                            </AnimatedButton>
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
+            </FadeInSection>
+
+
+            {services.length === 0 && (
             <FadeInSection>
               <div className="text-center py-16">
                 <Search className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
