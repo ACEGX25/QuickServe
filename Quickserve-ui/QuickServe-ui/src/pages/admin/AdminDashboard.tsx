@@ -43,6 +43,18 @@ import {
   Cell,
 } from "recharts";
 
+type StatCard = {
+  label: string;
+  value: string | number;
+  icon: any;
+  trend: "up" | "down";
+  change: string;
+  bgColor: string;
+  color: string;
+};
+
+
+
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/admin" },
   { icon: Users, label: "Users", path: "/admin/users" },
@@ -59,95 +71,108 @@ const COLORS = [
   "#a78bfa",
 ];
 
+type DashboardResponse = {
+  stats: {
+    totalUsers: number;
+    totalBookings: number;
+    activeBookings: number;
+    totalRevenue: number;
+    averageRating: number;
+  };
+  revenueTrend: { label: string; revenue: number; bookings: number }[];
+  categoryShare: { category: string; percentage: number }[];
+  ratingDistribution: { stars: number; count: number }[];
+  topServices: {
+    serviceName: string;
+    category: string;
+    bookings: number;
+    revenue: number;
+  }[];
+};
+
+
 
 
 
 
 const AdminDashboard = () => {
 
-  const [stats, setStats] = useState<any[]>([]);
+  const [stats, setStats] = useState<StatCard[]>([]);
   const token = localStorage.getItem("token");
-
-
-  useEffect(() => {
-    if (!token) return;
-
-    fetch("http://localhost:8080/api/admin/dashboard/stats", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          setStats([
-            {
-              label: "Total Users",
-              value: data.totalUsers,
-              icon: Users,
-              trend: "up",
-              change: "+",
-            },
-            {
-              label: "Active Bookings",
-              value: data.activeBookings,
-              icon: Calendar,
-              trend: "up",
-              change: "+",
-            },
-            {
-              label: "Revenue",
-              value: `$${data.revenue}`,
-              icon: DollarSign,
-              trend: "up",
-              change: "+",
-            },
-            {
-              label: "Avg Rating",
-              value: data.avgRating,
-              icon: Star,
-              trend: "down",
-              change: "-",
-            },
-          ]);
-        });
-  }, [token]);
-
-
-  const [revenueData, setRevenueData] = useState([]);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
 
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/analytics/trends", {
+    fetch("http://localhost:8080/api/admin/dashboard", {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
-        .then(data => {
-          const formatted = data.labels.map((label, i) => ({
-            name: label,
-            value: data.revenue[i],
-          }));
-          setRevenueData(formatted);
-        });
+        .then(setDashboard);
   }, [token]);
-
-
-  const [categoryData, setCategoryData] = useState([]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!dashboard) return;
 
-    fetch("http://localhost:8080/api/admin/analytics/services", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          setCategoryData(
-              data.map((row: any) => ({
-                name: row[0],
-                value: row[1],
-              }))
-          );
-        });
-  }, [token]);
+    setStats([
+      {
+        label: "Total Users",
+        value: dashboard.stats.totalUsers,
+        icon: Users,
+        trend: "up",
+        change: "+",
+        bgColor: "bg-blue-100",
+        color: "text-blue-600",
+      },
+      {
+        label: "Active Bookings",
+        value: dashboard.stats.activeBookings,
+        icon: Calendar,
+        trend: "up",
+        change: "+",
+        bgColor: "bg-emerald-100",
+        color: "text-emerald-600",
+      },
+      {
+        label: "Revenue",
+        value: `$${dashboard.stats.totalRevenue.toLocaleString()}`,
+        icon: DollarSign,
+        trend: "up",
+        change: "+",
+        bgColor: "bg-purple-100",
+        color: "text-purple-600",
+      },
+      {
+        label: "Avg Rating",
+        value: dashboard.stats.averageRating,
+        icon: Star,
+        trend: "up",
+        change: "+",
+        bgColor: "bg-yellow-100",
+        color: "text-yellow-600",
+      },
+    ]);
+  }, [dashboard]);
+
+
+
+
+  const revenueData =
+      dashboard?.revenueTrend.map(m => ({
+        name: m.label,
+        value: m.revenue,
+      })) ?? [];
+
+
+
+  const categoryData =
+      dashboard?.categoryShare.map((c, index) => ({
+        name: c.category,
+        value: c.percentage,
+        color: COLORS[index % COLORS.length],
+      })) ?? [];
+
+
 
 
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -163,25 +188,13 @@ const AdminDashboard = () => {
   }, [token]);
 
 
-  const [topServices, setTopServices] = useState([]);
+  const topServices =
+      dashboard?.topServices.map(s => ({
+        name: s.serviceName,
+        bookings: s.bookings,
+        revenue: `$${s.revenue.toLocaleString()}`,
+      })) ?? [];
 
-  useEffect(() => {
-    if (!token) return;
-
-    fetch("http://localhost:8080/api/admin/analytics/services", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-          setTopServices(
-              data.map((row: any) => ({
-                name: row[0],
-                bookings: row[1],
-                revenue: "-", // optional later
-              }))
-          );
-        });
-  }, [token]);
 
 
   const total = categoryData.reduce((sum, c) => sum + c.value, 0);

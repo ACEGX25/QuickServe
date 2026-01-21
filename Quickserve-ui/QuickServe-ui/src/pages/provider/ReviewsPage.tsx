@@ -16,7 +16,7 @@ import {
   Users,
   Shield,
   BarChart3,
-  Settings, Calendar, Ticket, WrenchIcon
+  Settings, Calendar, Ticket, WrenchIcon, Clock1Icon
 } from "lucide-react";
 
 interface Review {
@@ -101,8 +101,9 @@ const navItems = [
   { icon: Calendar, label: "Bookings", path: "/provider/bookings" },
   { icon: Star, label: "Reviews", path: "/provider/reviews" },
   { icon: Settings, label: "Settings", path: "/providerprofile" },
-  {icon : Ticket, label: "Listing", path: "/provider/listings"},
-  {icon: WrenchIcon, label: "Services", path:"/provider/services"}
+  { icon: Ticket, label: "Listing", path: "/provider/listings" },
+  { icon: WrenchIcon, label: "Services", path: "/provider/services" },
+  {icon : Clock1Icon, label: "Availability", path: "/provider/availability"}
 ];
 
 const ReviewsPage = () => {

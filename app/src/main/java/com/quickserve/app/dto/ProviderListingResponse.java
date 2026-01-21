@@ -1,11 +1,16 @@
 package com.quickserve.app.dto;
 
 import com.quickserve.app.model.Category;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
 public class ProviderListingResponse {
 
     private Long id;

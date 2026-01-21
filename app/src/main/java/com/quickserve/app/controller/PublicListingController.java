@@ -34,8 +34,12 @@ public class PublicListingController {
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        return listingService.searchListings(keyword, pageable);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return listingService.getAllActiveListings(pageable);
+        }
+        return listingService.searchListings(keyword.trim(), pageable);
     }
+
 
 
     /**

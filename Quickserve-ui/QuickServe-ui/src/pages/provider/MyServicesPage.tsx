@@ -1,13 +1,25 @@
-import { useState } from "react";
-import {DashboardLayout} from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/layout/DashboardLayout.tsx";
-import { Card, CardContent } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/card.tsx";
-import { Button } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/button.tsx";
-import { Badge } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/badge.tsx";
-import { Input } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/input.tsx";
-import { Label } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/label.tsx";
-import { Textarea } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/textarea.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/select.tsx";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/dialog.tsx";
+import { useEffect, useState } from "react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Plus,
   Briefcase,
@@ -15,281 +27,352 @@ import {
   Edit,
   Trash2,
   Home,
-  Users,
-  Shield,
-  BarChart3,
+  Calendar,
+  Star,
   Settings,
-  Calendar, Star, Ticket, WrenchIcon
+  Ticket,
+  WrenchIcon, Clock1Icon,
 } from "lucide-react";
 
+/* ================= TYPES ================= */
+
 interface Service {
-  id: string;
-  name: string;
+  id: number;
+  title: string;
+  description: string;
   category: string;
   price: number;
-  description: string;
-  image: string;
-  status: "active" | "pending" | "draft";
+  location?: string;
 }
 
-const initialServices: Service[] = [
-  {
-    id: "1",
-    name: "Home Cleaning",
-    category: "Cleaning",
-    price: 1200,
-    description: "Professional home cleaning service with eco-friendly products.",
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Electrical",
-    category: "Electrical",
-    price: 1200,
-    description: "Expert electrical repairs and installations.",
-    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop",
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Plumbing",
-    category: "Plumbing",
-    price: 1200,
-    description: "Complete plumbing solutions for your home.",
-    image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=300&fit=crop",
-    status: "pending",
-  },
+/* ================= CONSTANTS ================= */
+
+const API_BASE = "http://localhost:8080";
+
+const categories = [
+  { label: "Cleaning", value: "CLEANING" },
+  { label: "Electrical", value: "ELECTRICAL" },
+  { label: "Plumbing", value: "PLUMBING" },
+  { label: "Repairs", value: "REPAIRS" },
+  { label: "Movers", value: "MOVERS" },
+  { label: "Beauty", value: "BEAUTY" },
+  { label: "AC Service", value: "AC_SERVICE" },
 ];
 
-const categories = ["Cleaning", "Electrical", "Plumbing", "Carpentry", "Painting", "Pest Control", "AC Repair", "Other"];
+
+/* ================= COMPONENT ================= */
 
 const MyServicesPage = () => {
-  const [services, setServices] = useState<Service[]>(initialServices);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+
   const [formData, setFormData] = useState({
-    name: "",
+    title: "",
     category: "",
     price: "",
     description: "",
+    location: "",
   });
 
+  /* ---------- FETCH PROVIDER SERVICES ---------- */
+  useEffect(() => {
+    const fetchServices = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/provider/listings`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch services");
+
+        const data = await res.json();
+        setServices(data);
+      } catch (err) {
+        console.error("FETCH SERVICES ERROR:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  /* ---------- OPEN DIALOG ---------- */
   const handleOpenDialog = (service?: Service) => {
     if (service) {
       setEditingService(service);
       setFormData({
-        name: service.name,
+        title: service.title,
         category: service.category,
         price: service.price.toString(),
         description: service.description,
+        location: service.location ?? "",
       });
     } else {
       setEditingService(null);
-      setFormData({ name: "", category: "", price: "", description: "" });
+      setFormData({
+        title: "",
+        category: "",
+        price: "",
+        description: "",
+        location:"",
+      });
     }
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (editingService) {
-      setServices(services.map(s => 
-        s.id === editingService.id 
-          ? { ...s, ...formData, price: parseInt(formData.price) }
-          : s
-      ));
-    } else {
-      const newService: Service = {
-        id: Date.now().toString(),
-        name: formData.name,
-        category: formData.category,
-        price: parseInt(formData.price),
-        description: formData.description,
-        image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop",
-        status: "pending",
-      };
-      setServices([...services, newService]);
+  /* ---------- CREATE / UPDATE ---------- */
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(
+          editingService
+              ? `${API_BASE}/api/provider/listings/${editingService.id}`
+              : `${API_BASE}/api/provider/listings`,
+          {
+            method: editingService ? "PUT" : "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              title: formData.title,
+              description: formData.description,
+              category: formData.category,
+              price: Number(formData.price),
+              location: formData.location,
+            }),
+          }
+      );
+
+      if (!res.ok) throw new Error("Save failed");
+
+      const saved = await res.json();
+
+      setServices((prev) =>
+          editingService
+              ? prev.map((s) => (s.id === saved.id ? saved : s))
+              : [...prev, saved]
+      );
+
+      setDialogOpen(false);
+    } catch (err) {
+      console.error("SAVE SERVICE ERROR:", err);
     }
-    setDialogOpen(false);
-    setFormData({ name: "", category: "", price: "", description: "" });
   };
 
-  const handleDelete = (id: string) => {
-    setServices(services.filter(s => s.id !== id));
+  /* ---------- DELETE ---------- */
+  const handleDelete = async (id: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(
+          `${API_BASE}/api/provider/listings/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+      );
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      setServices((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("DELETE SERVICE ERROR:", err);
+    }
   };
 
-  const getStatusBadge = (status: Service["status"]) => {
-    const styles = {
-      active: "bg-primary/10 text-primary border-primary/30",
-      pending: "bg-warning/10 text-warning border-warning/30",
-      draft: "bg-muted text-muted-foreground border-muted",
-    };
-    return (
-      <Badge variant="outline" className={styles[status]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
-  };
-
+  /* ---------- NAV ---------- */
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/provider" },
     { icon: Calendar, label: "Bookings", path: "/provider/bookings" },
     { icon: Star, label: "Reviews", path: "/provider/reviews" },
     { icon: Settings, label: "Settings", path: "/providerprofile" },
-    {icon : Ticket, label: "Listing", path: "/provider/listings"},
-    {icon: WrenchIcon, label: "Services", path:"/provider/services"}
+    { icon: Ticket, label: "Listing", path: "/provider/listings" },
+    { icon: WrenchIcon, label: "Services", path: "/provider/services" },
+    {icon : Clock1Icon, label: "Availability", path: "/provider/availability"}
   ];
 
   return (
-    <DashboardLayout role={"provider"} navItems={navItems}>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="page-title">My Services</h1>
-            <p className="text-muted-foreground mt-1">Manage the services you offer to customers.</p>
-          </div>
-          <Button className="bg-primary hover:bg-primary/90" onClick={() => handleOpenDialog()}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Service
-          </Button>
-        </div>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <Card key={service.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <div className="aspect-video relative overflow-hidden">
-                <img 
-                  src={service.image} 
-                  alt={service.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 right-3">
-                  {getStatusBadge(service.status)}
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-foreground mb-1">{service.name}</h3>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  {service.category}
-                </div>
-                <div className="flex items-center gap-1 text-lg font-semibold mb-4">
-                  <span>Price -</span>
-                  <IndianRupee className="w-4 h-4" />
-                  <span>{service.price}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                    onClick={() => handleOpenDialog(service)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Listing
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="text-destructive hover:bg-destructive/10"
-                    onClick={() => handleDelete(service.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Add New Service Card */}
-          <Card 
-            className="border-dashed border-2 hover:border-primary/50 transition-colors cursor-pointer"
-            onClick={() => handleOpenDialog()}
-          >
-            <CardContent className="p-4 h-full min-h-[300px] flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors">
-              <div className="w-16 h-16 rounded-full border-2 border-dashed border-current flex items-center justify-center mb-4">
-                <Plus className="w-8 h-8" />
-              </div>
-              <p className="font-medium">Create New Listing</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Add/Edit Service Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
-              {editingService ? "Edit Service" : "Add New Service"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Service Name</Label>
-              <Input
-                id="name"
-                placeholder="e.g., Home Cleaning"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
+      <DashboardLayout role="provider" navItems={navItems}>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="page-title">My Services</h1>
+              <p className="text-muted-foreground mt-1">
+                Manage the services you offer.
+              </p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select 
-                value={formData.category} 
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price">Price (₹)</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="e.g., 1200"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe your service..."
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              className="bg-primary hover:bg-primary/90"
-              onClick={handleSave}
-              disabled={!formData.name || !formData.category || !formData.price}
+            <Button
+                className="bg-primary hover:bg-primary/90"
+                onClick={() => handleOpenDialog()}
             >
-              {editingService ? "Save Changes" : "Add Service"}
+              <Plus className="w-4 h-4 mr-2" />
+              Add Service
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </DashboardLayout>
+          </div>
+
+          {loading && <p>Loading services...</p>}
+
+          {!loading && services.length === 0 && (
+              <p className="text-muted-foreground">
+                No services created yet.
+              </p>
+          )}
+
+          {/* SERVICES GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+                <Card key={service.id}>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-1">{service.title}</h3>
+
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      {service.category}
+                    </div>
+
+                    <div className="flex items-center gap-1 text-lg font-semibold mb-4">
+                      <IndianRupee className="w-4 h-4" />
+                      {service.price}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                          className="flex-1 bg-primary hover:bg-primary/90"
+                          onClick={() => handleOpenDialog(service)}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                          variant="outline"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => handleDelete(service.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* ADD / EDIT DIALOG */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>
+                {editingService ? "Edit Service" : "Add New Service"}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div>
+                <Label>Service Name</Label>
+                <Input
+                    value={formData.title}
+                    onChange={(e) =>
+                        setFormData({...formData, title: e.target.value})
+                    }
+                />
+              </div>
+
+              <div>
+                <Label>Category</Label>
+                <Select
+                    value={formData.category}
+                    onValueChange={(value) =>
+                        setFormData({...formData, category: value})
+                    }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+              </div>
+
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                    placeholder="e.g., Bangalore"
+                    value={formData.location}
+                    onChange={(e) =>
+                        setFormData({...formData, location: e.target.value})
+                    }
+                />
+              </div>
+
+
+              <div>
+                <Label>Price (₹)</Label>
+                <Input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) =>
+                        setFormData({...formData, price: e.target.value})
+                    }
+                />
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                    }
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={handleSave}
+                  disabled={
+                      !formData.title ||
+                      !formData.category ||
+                      !formData.price||
+                      !(formData.description ?? "").trim() ||
+                      !(formData.location ?? "").trim()
+                  }
+              >
+                {editingService ? "Save Changes" : "Add Service"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </DashboardLayout>
   );
 };
 

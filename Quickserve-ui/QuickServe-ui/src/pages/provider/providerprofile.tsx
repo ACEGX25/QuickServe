@@ -20,6 +20,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+
+const API_BASE = "http://localhost:8080";
+
 interface ProviderProfileData {
   firstName: string;
   lastName: string;
@@ -59,6 +62,50 @@ interface NotificationSettings {
   paymentAlerts: boolean;
   marketingEmails: boolean;
 }
+
+// utils / helper (keep in this file for now)
+const DAY_INDEX_TO_KEY = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+type WorkingHours = ProviderProfileData["workingHours"];
+
+export function generateSlotsFromWorkingHours(
+    workingHours: WorkingHours,
+    date: Date,
+    slotDurationInHours = 1
+) {
+  const dayKey = DAY_INDEX_TO_KEY[date.getDay()];
+  const dayConfig = workingHours[dayKey];
+
+  if (!dayConfig || !dayConfig.enabled) {
+    return [];
+  }
+
+  const slots: { start: string; end: string }[] = [];
+
+  let startHour = parseInt(dayConfig.start.split(":")[0], 10);
+  const endHour = parseInt(dayConfig.end.split(":")[0], 10);
+
+  while (startHour + slotDurationInHours <= endHour) {
+    const start = `${startHour.toString().padStart(2, "0")}:00`;
+    const end = `${(startHour + slotDurationInHours)
+        .toString()
+        .padStart(2, "0")}:00`;
+
+    slots.push({ start, end });
+    startHour += slotDurationInHours;
+  }
+
+  return slots;
+}
+
 
 const ProviderProfile: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -151,6 +198,35 @@ const ProviderProfile: React.FC = () => {
     const filledFields = fields.filter(field => field && field.trim() !== '').length;
     return Math.round((filledFields / fields.length) * 100);
   };
+
+  const saveWorkingHours = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Login required");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/calendar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData.workingHours),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save working hours");
+      }
+
+      alert("Working hours saved successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Error saving working hours");
+    }
+  };
+
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -743,97 +819,115 @@ const ProviderProfile: React.FC = () => {
 
                 {/* Availability Tab */}
                 <TabsContent value="availability" className="space-y-6">
+                  {/*
+  NOTE:
+  These are WEEKLY working hours (rules).
+  Concrete availability slots are generated later on the booking calendar page.
+*/}
                   <div>
                     <h3 className="text-lg font-semibold text-foreground">Working Hours</h3>
                     <p className="text-sm text-muted-foreground">Set your availability for bookings</p>
                   </div>
 
-                  <Separator />
+                  <Separator/>
 
                   <div className="space-y-4">
                     {days.map((day) => {
                       const dayData = profileData.workingHours[day as keyof typeof profileData.workingHours];
                       return (
-                        <motion.div
-                          key={day}
-                          whileHover={{ x: 4 }}
-                          className={`flex items-center justify-between p-4 rounded-xl transition-colors ${
-                            dayData.enabled ? 'bg-primary/5' : 'bg-muted/30'
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <Switch
-                              checked={dayData.enabled}
-                              onCheckedChange={() => toggleWorkingDay(day)}
-                            />
-                            <span className={`font-medium capitalize ${dayData.enabled ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          <motion.div
+                              key={day}
+                              whileHover={{x: 4}}
+                              className={`flex items-center justify-between p-4 rounded-xl transition-colors ${
+                                  dayData.enabled ? 'bg-primary/5' : 'bg-muted/30'
+                              }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <Switch
+                                  checked={dayData.enabled}
+                                  onCheckedChange={() => toggleWorkingDay(day)}
+                              />
+                              <span
+                                  className={`font-medium capitalize ${dayData.enabled ? 'text-foreground' : 'text-muted-foreground'}`}>
                               {day}
                             </span>
-                          </div>
-                          {dayData.enabled ? (
-                            <div className="flex items-center gap-2">
-                              <Input
-                                type="time"
-                                value={dayData.start}
-                                onChange={(e) => {
-                                  setProfileData(prev => ({
-                                    ...prev,
-                                    workingHours: {
-                                      ...prev.workingHours,
-                                      [day]: { ...dayData, start: e.target.value }
-                                    }
-                                  }));
-                                }}
-                                className="w-28 bg-background/50 text-sm"
-                              />
-                              <span className="text-muted-foreground">to</span>
-                              <Input
-                                type="time"
-                                value={dayData.end}
-                                onChange={(e) => {
-                                  setProfileData(prev => ({
-                                    ...prev,
-                                    workingHours: {
-                                      ...prev.workingHours,
-                                      [day]: { ...dayData, end: e.target.value }
-                                    }
-                                  }));
-                                }}
-                                className="w-28 bg-background/50 text-sm"
-                              />
                             </div>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">Closed</span>
-                          )}
-                        </motion.div>
+                            {dayData.enabled ? (
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                      type="time"
+                                      value={dayData.start}
+                                      onChange={(e) => {
+                                        setProfileData(prev => ({
+                                          ...prev,
+                                          workingHours: {
+                                            ...prev.workingHours,
+                                            [day]: {...dayData, start: e.target.value}
+                                          }
+                                        }));
+                                      }}
+                                      className="w-28 bg-background/50 text-sm"
+                                  />
+                                  <span className="text-muted-foreground">to</span>
+                                  <Input
+                                      type="time"
+                                      value={dayData.end}
+                                      onChange={(e) => {
+                                        setProfileData(prev => ({
+                                          ...prev,
+                                          workingHours: {
+                                            ...prev.workingHours,
+                                            [day]: {...dayData, end: e.target.value}
+                                          }
+                                        }));
+                                      }}
+                                      className="w-28 bg-background/50 text-sm"
+                                  />
+                                </div>
+                            ) : (
+                                <span className="text-sm text-muted-foreground">Closed</span>
+                            )}
+                          </motion.div>
                       );
                     })}
+                    <div className="flex justify-end pt-4">
+                      <AnimatedButton onClick={saveWorkingHours}>
+                        <Save className="w-4 h-4 mr-2"/>
+                        Save Working Hours
+                      </AnimatedButton>
+                    </div>
                   </div>
 
                   {/* Notification Settings within Availability */}
-                  <Separator />
+                  <Separator/>
                   <div className="space-y-4">
                     <h4 className="font-medium text-foreground">Booking Notifications</h4>
                     {[
-                      { key: 'newBookingAlerts', label: 'New Booking Alerts', description: 'Get notified for new bookings' },
-                      { key: 'reviewAlerts', label: 'Review Alerts', description: 'When customers leave reviews' },
-                      { key: 'paymentAlerts', label: 'Payment Alerts', description: 'Payment confirmations and updates' },
+                      {
+                        key: 'newBookingAlerts',
+                        label: 'New Booking Alerts',
+                        description: 'Get notified for new bookings'
+                      },
+                      {key: 'reviewAlerts', label: 'Review Alerts', description: 'When customers leave reviews'},
+                      {key: 'paymentAlerts', label: 'Payment Alerts', description: 'Payment confirmations and updates'},
                     ].map((item) => (
-                      <div
-                        key={item.key}
-                        className="flex items-center justify-between p-4 rounded-xl bg-primary/5"
-                      >
-                        <div>
-                          <p className="font-medium text-foreground">{item.label}</p>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <div
+                            key={item.key}
+                            className="flex items-center justify-between p-4 rounded-xl bg-primary/5"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">{item.label}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          </div>
+                          <Switch
+                              checked={notifications[item.key as keyof NotificationSettings]}
+                              onCheckedChange={(checked) =>
+                                  setNotifications(prev => ({...prev, [item.key]: checked}))
+                              }
+                          />
+
                         </div>
-                        <Switch
-                          checked={notifications[item.key as keyof NotificationSettings]}
-                          onCheckedChange={(checked) =>
-                            setNotifications(prev => ({ ...prev, [item.key]: checked }))
-                          }
-                        />
-                      </div>
+
                     ))}
                   </div>
                 </TabsContent>

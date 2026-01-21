@@ -3,6 +3,10 @@ package com.quickserve.app.repository;
 import com.quickserve.app.dto.ServiceListingResponse;
 import com.quickserve.app.model.ServiceListing;
 import com.quickserve.app.model.User;
+import com.quickserve.app.repository.projection.CategoryShareProjection;
+import com.quickserve.app.repository.projection.RatingDistributionProjection;
+import com.quickserve.app.repository.projection.ServicePerformanceProjection;
+import com.quickserve.app.repository.projection.TopServiceProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,31 +30,31 @@ public interface ServiceListingRepository extends JpaRepository<ServiceListing, 
     List<ServiceListing> findByApprovedFalse();
 
     // ✅ NEW: Search API method with ratings
-    @Query("""
-        SELECT new com.quickserve.app.dto.ServiceListingResponse(
-            s.id,
-            s.title,
-            s.description,
-            s.location,
-            s.category,
-            s.price,
-            s.provider.id,
-            s.provider.username,
-            s.avgRating,
-            s.ratingCount
-        )
-        FROM ServiceListing s
-        WHERE s.active = true
-        AND (
-            LOWER(s.title) LIKE LOWER(CONCAT('%', :query, '%'))
-            OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
-            OR LOWER(s.location) LIKE LOWER(CONCAT('%', :query, '%'))
-        )
-        """)
-    Page<ServiceListingResponse> search(
-            @Param("query") String query,
-            Pageable pageable
-    );
+//    @Query("""
+//        SELECT new com.quickserve.app.dto.ServiceListingResponse(
+//            s.id,
+//            s.title,
+//            s.description,
+//            s.location,
+//            s.category,
+//            s.price,
+//            s.provider.id,
+//            s.provider.username,
+//            s.avgRating,
+//            s.ratingCount
+//        )
+//        FROM ServiceListing s
+//        WHERE s.active = true
+//        AND (
+//            LOWER(s.title) LIKE LOWER(CONCAT('%', :query, '%'))
+//            OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
+//            OR LOWER(s.location) LIKE LOWER(CONCAT('%', :query, '%'))
+//        )
+//        """)
+//    Page<ServiceListingResponse> search(
+//            @Param("query") String query,
+//            Pageable pageable
+//    );
 
     // Total revenue = sum of prices of active listings
     @Query("""
@@ -79,32 +83,71 @@ public interface ServiceListingRepository extends JpaRepository<ServiceListing, 
     // Rejected = admin rejected
     long countByApprovedFalseAndActiveFalse();
 
-    @Query("""
-    SELECT EXTRACT(MONTH FROM b.createdAt), SUM(s.price)
-    FROM Booking b
-    JOIN ServiceListing s ON b.serviceListingId = s.id
-    WHERE b.status = 'CONFIRMED'
-    GROUP BY EXTRACT(MONTH FROM b.createdAt)
-    ORDER BY EXTRACT(MONTH FROM b.createdAt)
-""")
-    List<Object[]> getMonthlyRevenue();
+
 
 
     @Query("""
-    SELECT s.category, COUNT(s)
-    FROM ServiceListing s
-    WHERE s.approved = true
-    GROUP BY s.category
+SELECT s.title AS title,
+       COUNT(b) AS bookings,
+       COALESCE(SUM(s.price), 0) AS revenue
+FROM Booking b
+JOIN b.serviceListing s
+GROUP BY s.id, s.title
+ORDER BY COUNT(b) DESC
 """)
-    List<Object[]> getServicePerformance();
+    List<ServicePerformanceProjection> getServicePerformance();
+
+
+
 
     @Query("""
-    SELECT s.avgRating, COUNT(s)
-    FROM ServiceListing s
-    WHERE s.ratingCount > 0
-    GROUP BY s.avgRating
+SELECT s.avgRating AS rating, COUNT(s) AS count
+FROM ServiceListing s
+WHERE s.ratingCount > 0
+GROUP BY s.avgRating
 """)
-    List<Object[]> getRatingDistribution();
+    List<RatingDistributionProjection> getRatingDistribution();
+
+
+    Page<ServiceListing> findByActiveTrue(Pageable pageable);
+    List<ServiceListing> findByActiveTrue();
+
+    @Query("""
+    SELECT s FROM ServiceListing s
+    WHERE s.active = true
+    AND (
+        LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(s.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(s.location) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+""")
+    Page<ServiceListing> searchActiveListings(
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+
+    @Query("""
+SELECT s.category AS category, COUNT(b) AS count
+FROM Booking b
+JOIN b.serviceListing s
+GROUP BY s.category
+""")
+    List<CategoryShareProjection> getCategoryShare();
+
+    @Query("""
+SELECT s.title AS title,
+       s.category AS category,
+       COUNT(b) AS bookings,
+       COALESCE(SUM(s.price), 0) AS revenue
+FROM Booking b
+JOIN b.serviceListing s
+GROUP BY s.id, s.title, s.category
+ORDER BY COUNT(b) DESC
+""")
+    Page<TopServiceProjection> getTopServices(Pageable pageable);
+
+
 
 
 }

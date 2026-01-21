@@ -1,14 +1,17 @@
 package com.quickserve.app.service.impl;
 
 import com.quickserve.app.dto.BookingDetailResponse;
+import com.quickserve.app.dto.BookingListItemResponse;
 import com.quickserve.app.dto.BookingRequest;
+import com.quickserve.app.dto.ProviderBookingResponse;
 import com.quickserve.app.model.*;
 import com.quickserve.app.repository.*;
 import com.quickserve.app.service.BookingService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 
@@ -20,6 +23,10 @@ public class BookingServiceImpl implements BookingService {
     private final CalendarAvailabilityRepository calendarAvailabilityRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+
+
+
+
 
     public BookingServiceImpl(
             BookingRepository bookingRepository,
@@ -109,24 +116,80 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.save(booking);
     }
 
-    // ✅ USER BOOKINGS
     @Override
-    public List<Booking> getBookingsForUserByEmail(String email) {
+    @Transactional(readOnly = true)
+    public List<BookingListItemResponse> getBookingsForUserByEmail(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return bookingRepository.findByUserId(user.getId());
+        return bookingRepository.findByUserId(user.getId())
+                .stream()
+                .map(this::mapToBookingListItem)
+                .toList();
     }
 
+
+    private BookingListItemResponse mapToBookingListItem(Booking booking) {
+        ServiceListing listing = booking.getServiceListing();
+
+        String title = "[Deleted service]";
+        BigDecimal price = BigDecimal.ZERO;
+
+        if (listing != null) {
+            title = listing.getTitle();
+            price = listing.getPrice();
+        }
+
+        return new BookingListItemResponse(
+                booking.getId(),
+                title,
+                booking.getStatus(),
+                booking.getStartTime(),
+                booking.getEndTime(),
+                price
+        );
+    }
+
+
+
+
     @Override
-    public List<Booking> getBookingsForProviderByEmail(String email) {
+    @Transactional(readOnly = true)
+    public List<ProviderBookingResponse> getBookingsForProviderByEmail(String email) {
 
         User provider = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Provider not found"));
 
-        return bookingRepository.findByProviderId(provider.getId());
+        return bookingRepository.findByProviderId(provider.getId())
+                .stream()
+                .map(booking -> {
+
+                    ServiceListing listing = booking.getServiceListing();
+
+                    String title = "[Deleted service]";
+                    Category category = null;
+
+                    if (listing != null) {
+                        title = listing.getTitle();
+                        category = listing.getCategory(); // enum → SAFE
+                    }
+
+                    return new ProviderBookingResponse(
+                            booking.getId(),
+                            booking.getUserId(),
+                            booking.getServiceListingId(),
+                            title,
+                            category,
+                            booking.getStartTime(),   // OffsetDateTime
+                            booking.getEndTime(),     // OffsetDateTime
+                            booking.getStatus()
+                    );
+                })
+                .toList();
     }
+
+
 
     // ✅ PROVIDER ACCEPT BOOKING
     @Override

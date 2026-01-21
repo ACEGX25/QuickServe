@@ -1,7 +1,9 @@
 package com.quickserve.app.repository;
 
+import com.quickserve.app.dto.BookingDetailResponse;
 import com.quickserve.app.model.Booking;
 import com.quickserve.app.model.BookingStatus;
+import com.quickserve.app.repository.projection.MonthlyTrendProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,25 +48,28 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 """)
     long countBookingsByUserId(Long userId);
 
-    @Query("""
-    SELECT EXTRACT(MONTH FROM b.createdAt), COUNT(b)
-    FROM Booking b
-    GROUP BY EXTRACT(MONTH FROM b.createdAt)
-    ORDER BY EXTRACT(MONTH FROM b.createdAt)
-""")
-    List<Object[]> getMonthlyBookings();
 
     @Query("""
     SELECT
-        EXTRACT(MONTH FROM b.createdAt),
-        COALESCE(SUM(s.price), 0)
+        EXTRACT(MONTH FROM b.createdAt) AS month,
+        COUNT(b) AS bookings,
+        COALESCE(SUM(s.price), 0) AS revenue
     FROM Booking b
-    JOIN ServiceListing s ON b.serviceListingId = s.id
+    JOIN b.serviceListing s
     WHERE b.status = com.quickserve.app.model.BookingStatus.CONFIRMED
     GROUP BY EXTRACT(MONTH FROM b.createdAt)
     ORDER BY EXTRACT(MONTH FROM b.createdAt)
 """)
-    List<Object[]> getMonthlyRevenue();
+    List<MonthlyTrendProjection> getMonthlyTrend();
+
+
+    @Query("""
+SELECT COUNT(b)
+FROM Booking b
+WHERE b.status IN :statuses
+""")
+    long countActiveBookings(@Param("statuses") List<BookingStatus> statuses);
+
 
 
 

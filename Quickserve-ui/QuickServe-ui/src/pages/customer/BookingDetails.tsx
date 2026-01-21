@@ -312,7 +312,7 @@ const BookingDetails = () => {
             className="mt-4"
           >
             <Button
-  onClick={() => navigate(`/booking/${booking.id}/review`)}
+  onClick={() => navigate(`/booking/${booking.id}/CreateReview`)}
   className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
 >
   <Star className="w-4 h-4 mr-2" />

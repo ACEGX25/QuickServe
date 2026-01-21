@@ -2,10 +2,13 @@ package com.quickserve.app.service.impl;
 
 import com.quickserve.app.dto.*;
 import com.quickserve.app.model.Category;
+import com.quickserve.app.model.ListingImage;
 import com.quickserve.app.model.ServiceListing;
 import com.quickserve.app.model.User;
 import com.quickserve.app.repository.ServiceListingRepository;
 import com.quickserve.app.repository.UserRepository;
+import com.quickserve.app.service.CloudinaryService;
+import com.quickserve.app.service.ImageResolverService;
 import com.quickserve.app.service.ListingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +18,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +31,11 @@ import java.util.stream.Collectors;
 public class ListingServiceImpl implements ListingService {
 
     private final ServiceListingRepository listingRepository;
+    private final UserRepository userRepository;
+    private final ImageResolverService imageResolverService;
+    private final CloudinaryService cloudinaryService;
 
-    @Autowired
-    UserRepository userRepository;
+
 
 
     @Override
@@ -93,12 +100,12 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Page<ServiceListingResponse> searchListings(
-            String keyword,
-            Pageable pageable
-    ) {
-        return listingRepository.search(keyword, pageable);
+    public Page<ServiceListingResponse> searchListings(String keyword, Pageable pageable) {
+        return listingRepository
+                .searchActiveListings(keyword.toLowerCase(), pageable)
+                .map(this::mapToServiceListingResponse);
     }
+
 
     @Override
     public List<ServiceListingResponse> filterListings(ListingFilterRequest filter) {
@@ -150,6 +157,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
     private ServiceListingResponse mapToResponse(ServiceListing listing) {
+        ServiceListingResponse res = new ServiceListingResponse();
         ServiceListingResponse dto = new ServiceListingResponse();
         dto.setId(listing.getId());
         dto.setTitle(listing.getTitle());
@@ -161,11 +169,12 @@ public class ListingServiceImpl implements ListingService {
         dto.setProviderId(listing.getProvider().getId());
         dto.setProviderName(listing.getProvider().getUsername());
 
+
         return dto;
     }
 
     @Override
-    public ServiceListingResponse createListing(CreateListingRequest request) {
+    public ServiceListingResponse createListing(CreateListingRequest request, MultipartFile image) {
 
         User provider = getCurrentProvider();
 
@@ -176,21 +185,45 @@ public class ListingServiceImpl implements ListingService {
         listing.setLocation(request.getLocation());
         listing.setCategory(request.getCategory());
         listing.setProvider(provider);
+        listing.setActive(true);
 
+        // IMPORTANT: prevent NPE
+        listing.setImages(new ArrayList<>());
+
+        // Save first to generate ID
         ServiceListing saved = listingRepository.save(listing);
+
+        // Optional image upload
+        if (image != null && !image.isEmpty()) {
+
+            String imageUrl = cloudinaryService.upload(image);
+
+            ListingImage listingImage = new ListingImage();
+            listingImage.setImageUrl(imageUrl);
+            listingImage.setListing(saved);
+
+            saved.getImages().add(listingImage);
+            listingRepository.save(saved);
+        }
+
         return mapToServiceListingResponse(saved);
     }
 
-    @Override
-    public List<ProviderListingResponse> getProviderListings() {
 
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProviderListingResponse> getProviderListings() {
         User provider = getCurrentProvider();
 
         return listingRepository.findByProviderId(provider.getId())
                 .stream()
                 .map(this::mapToProviderListingResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
+
+
+
 
     @Override
     public ServiceListingResponse updateListing(Long listingId, UpdateListingRequest request) {
@@ -255,6 +288,7 @@ public class ListingServiceImpl implements ListingService {
 
         res.setAverageRating(listing.getAvgRating());
         res.setRatingCount(listing.getRatingCount());
+        res.setImages(imageResolverService.resolve(listing));
 
         return res;
     }
@@ -269,6 +303,27 @@ public class ListingServiceImpl implements ListingService {
         res.setCategory(listing.getCategory());
         return res;
     }
+
+//    private ServiceListingResponse toResponse(ServiceListing listing) {
+//        return ServiceListingResponse.builder()
+//                .id(listing.getId())
+//                .title(listing.getTitle())
+//                .description(listing.getDescription())
+//                .price(listing.getPrice())
+//                .location(listing.getLocation())
+//                .averageRating(listing.getAvgRating())
+//                .providerName(listing.getProvider().getUsername())
+//                .build();
+//    }
+
+
+    @Override
+    public Page<ServiceListingResponse> getAllActiveListings(Pageable pageable) {
+        return listingRepository
+                .findByActiveTrue(pageable)
+                .map(this::mapToServiceListingResponse);
+    }
+
 
 
 }
