@@ -1,5 +1,6 @@
 package com.quickserve.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -44,6 +45,10 @@ public class Booking {
     void onUpdate() {
         updatedAt = OffsetDateTime.now();
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_listing_id", insertable = false, updatable = false)
+    private ServiceListing serviceListing;
 
 
 }

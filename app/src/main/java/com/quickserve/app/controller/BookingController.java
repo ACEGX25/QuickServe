@@ -1,7 +1,9 @@
 package com.quickserve.app.controller;
 
 import com.quickserve.app.dto.BookingDetailResponse;
+import com.quickserve.app.dto.BookingListItemResponse;
 import com.quickserve.app.dto.BookingRequest;
+import com.quickserve.app.dto.ProviderBookingResponse;
 import com.quickserve.app.model.Booking;
 import com.quickserve.app.service.BookingService;
 import jakarta.validation.Valid;
@@ -43,9 +45,8 @@ public class BookingController {
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Get bookings for logged-in USER
     @GetMapping("/my")
-    public ResponseEntity<List<Booking>> getMyBookings(
+    public ResponseEntity<List<BookingListItemResponse>> getMyBookings(
             Authentication authentication
     ) {
         String email = authentication.getName();
@@ -53,6 +54,8 @@ public class BookingController {
                 bookingService.getBookingsForUserByEmail(email)
         );
     }
+
+
 
     @GetMapping("/my/{id}")
     public ResponseEntity<BookingDetailResponse> getMyBookingDetail(
@@ -68,9 +71,8 @@ public class BookingController {
     }
 
 
-    // ✅ Get bookings for PROVIDER
     @GetMapping("/provider")
-    public ResponseEntity<List<Booking>> getProviderBookings(
+    public ResponseEntity<List<ProviderBookingResponse>> getProviderBookings(
             Authentication authentication
     ) {
         String email = authentication.getName();

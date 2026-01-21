@@ -2,13 +2,15 @@
 package com.quickserve.app.dto;
 
 import com.quickserve.app.model.Category;
-import com.quickserve.app.model.ServiceListing;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,5 +29,6 @@ public class ServiceListingResponse {
 
     private BigDecimal averageRating;
     private int ratingCount;
+    private List<String> images;
 
 }

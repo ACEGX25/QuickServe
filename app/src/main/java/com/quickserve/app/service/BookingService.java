@@ -1,7 +1,9 @@
 package com.quickserve.app.service;
 
 import com.quickserve.app.dto.BookingDetailResponse;
+import com.quickserve.app.dto.BookingListItemResponse;
 import com.quickserve.app.dto.BookingRequest;
+import com.quickserve.app.dto.ProviderBookingResponse;
 import com.quickserve.app.model.Booking;
 import jakarta.validation.Valid;
 
@@ -14,9 +16,10 @@ public interface BookingService {
 
     void cancelBookingByEmail(Long bookingId, String email);
 
-    List<Booking> getBookingsForUserByEmail(String email);
+    List<BookingListItemResponse> getBookingsForUserByEmail(String email);
 
-    List<Booking> getBookingsForProviderByEmail(String email);
+    List<ProviderBookingResponse> getBookingsForProviderByEmail(String email);
+
 
     Booking acceptBookingByEmail(Long bookingId, String email);
 

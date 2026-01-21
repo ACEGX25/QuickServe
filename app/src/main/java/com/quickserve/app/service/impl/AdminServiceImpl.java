@@ -1,36 +1,56 @@
 package com.quickserve.app.service.impl;
 
+import com.quickserve.app.dto.*;
+import com.quickserve.app.model.BookingStatus;
+import com.quickserve.app.model.Role;
 import com.quickserve.app.model.ServiceListing;
 import com.quickserve.app.repository.BookingRepository;
 import com.quickserve.app.repository.ServiceListingRepository;
 import com.quickserve.app.repository.UserRepository;
+import com.quickserve.app.repository.projection.CategoryShareProjection;
+import com.quickserve.app.repository.projection.MonthlyTrendProjection;
+import com.quickserve.app.repository.projection.RatingDistributionProjection;
+import com.quickserve.app.repository.projection.TopServiceProjection;
 import com.quickserve.app.service.AdminService;
-import com.quickserve.app.model.Role;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AdminServiceImpl implements AdminService {
+
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final ServiceListingRepository serviceListingRepository;
+    private static final List<BookingStatus> ACTIVE_STATUSES =
+            List.of(
+                    BookingStatus.PENDING,
+                    BookingStatus.CONFIRMED
+            );
 
-    public AdminServiceImpl(UserRepository userRepository, BookingRepository bookingRepository, ServiceListingRepository serviceListingRepository) {
+
+
+
+    public AdminServiceImpl(
+            UserRepository userRepository,
+            BookingRepository bookingRepository,
+            ServiceListingRepository serviceListingRepository
+    ) {
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.serviceListingRepository = serviceListingRepository;
     }
 
+    /* =========================================================
+       EXISTING ADMIN FEATURES (UNCHANGED)
+       ========================================================= */
+
     @Override
     public List<Map<String, Object>> getAllUsers() {
-
         return userRepository.findAll()
                 .stream()
                 .map(user -> {
@@ -56,7 +76,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<Map<String, Object>> getPendingListings() {
-
         return serviceListingRepository.findByApprovedFalse()
                 .stream()
                 .map(listing -> {
@@ -78,7 +97,6 @@ public class AdminServiceImpl implements AdminService {
     public void approveListing(Long listingId) {
         ServiceListing listing = serviceListingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
-
         listing.setApproved(true);
         serviceListingRepository.save(listing);
     }
@@ -87,14 +105,12 @@ public class AdminServiceImpl implements AdminService {
     public void rejectListing(Long listingId) {
         ServiceListing listing = serviceListingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
-
-        listing.setActive(false);   // soft reject
+        listing.setActive(false);
         serviceListingRepository.save(listing);
     }
 
     @Override
     public Map<String, Object> getApprovalStats() {
-
         long pending = serviceListingRepository.countByApprovedFalseAndActiveTrue();
         long approved = serviceListingRepository.countByApprovedTrueAndActiveTrue();
         long rejected = serviceListingRepository.countByApprovedFalseAndActiveFalse();
@@ -108,83 +124,137 @@ public class AdminServiceImpl implements AdminService {
         );
     }
 
+    /* =========================================================
+       DASHBOARD ANALYTICS (DTO-BASED, FIXED)
+       ========================================================= */
+
     @Override
-    public Map<String, Object> getAnalyticsSummary() {
-        return Map.of(
-                "totalRevenue", serviceListingRepository.getTotalRevenue(),
-                "totalBookings", bookingRepository.count(),
-                "totalUsers", userRepository.count(),
-                "avgRating", serviceListingRepository.getAverageRating()
+    public AdminDashboardStatsResponse getDashboardStats() {
+
+        BigDecimal avgRatingRaw = BigDecimal.valueOf(serviceListingRepository.getAverageRating());
+        double avgRating = avgRatingRaw == null
+                ? 0.0
+                : avgRatingRaw.setScale(1, RoundingMode.HALF_UP).doubleValue();
+        long activeBookings =
+                bookingRepository.countActiveBookings(ACTIVE_STATUSES);
+
+
+        return new AdminDashboardStatsResponse(
+                userRepository.count(),
+                bookingRepository.count(),
+                activeBookings,
+                serviceListingRepository.getTotalRevenue(),
+                avgRating
         );
     }
 
     @Override
-    public Map<String, Object> getRevenueAndBookingsTrend() {
+    public List<RevenueTrendResponse> getRevenueTrend() {
 
-        List<Object[]> revenueRaw = bookingRepository.getMonthlyRevenue();
-        List<Object[]> bookingRaw = bookingRepository.getMonthlyBookings();
+        List<MonthlyTrendProjection> raw = bookingRepository.getMonthlyTrend();
 
-        List<String> labels = new ArrayList<>();
-        List<BigDecimal> revenue = new ArrayList<>();
-        List<Long> bookings = new ArrayList<>();
-
-        for (int month = 1; month <= 12; month++) {
-            final int m = month;
-
-            labels.add(Month.of(m).name().substring(0, 3));
-
-            revenue.add(
-                    revenueRaw.stream()
-                            .filter(r -> ((Number) r[0]).intValue() == m)
-                            .map(r -> (BigDecimal) r[1])
-                            .findFirst()
-                            .orElse(BigDecimal.ZERO)
-            );
-
-            bookings.add(
-                    bookingRaw.stream()
-                            .filter(b -> ((Number) b[0]).intValue() == m)
-                            .map(b -> ((Number) b[1]).longValue())
-                            .findFirst()
-                            .orElse(0L)
-            );
+        Map<Integer, MonthlyTrendProjection> map = new HashMap<>();
+        for (MonthlyTrendProjection p : raw) {
+            map.put(p.getMonth(), p);
         }
 
-        return Map.of(
-                "labels", labels,
-                "revenue", revenue,
-                "bookings", bookings
+        List<RevenueTrendResponse> result = new ArrayList<>();
+
+        for (int m = 1; m <= 12; m++) {
+            MonthlyTrendProjection p = map.get(m);
+
+            result.add(new RevenueTrendResponse(
+                    Month.of(m).name().substring(0, 3),
+                    p != null ? p.getRevenue() : BigDecimal.ZERO,
+                    p != null ? p.getBookings() : 0L
+            ));
+        }
+
+        return result;
+
+    }
+
+
+
+    @Override
+    public List<RatingDistributionResponse> getRatingDistribution() {
+
+        List<RatingDistributionProjection> raw =
+                serviceListingRepository.getRatingDistribution();
+
+        Map<Integer, Long> map = new HashMap<>();
+        for (RatingDistributionProjection p : raw) {
+            map.put(p.getRating().intValue(), p.getCount());
+        }
+
+        List<RatingDistributionResponse> result = new ArrayList<>();
+        for (int stars = 1; stars <= 5; stars++) {
+            result.add(new RatingDistributionResponse(
+                    stars,
+                    map.getOrDefault(stars, 0L)
+            ));
+        }
+
+        return result;
+    }
+
+
+    @Override
+    public List<ServiceCategoryShareResponse> getCategoryShare() {
+
+        List<CategoryShareProjection> raw =
+                serviceListingRepository.getCategoryShare();
+
+        long total = raw.stream()
+                .mapToLong(CategoryShareProjection::getCount)
+                .sum();
+
+        return raw.stream()
+                .map(p -> {
+                    double percentage = total > 0
+                            ? Math.round((p.getCount() * 1000.0 / total)) / 10.0
+                            : 0.0;
+
+                    return new ServiceCategoryShareResponse(
+                            p.getCategory(),
+                            percentage
+                    );
+                })
+                .toList();
+    }
+
+
+    @Override
+    public List<TopServiceResponse> getTopServices() {
+
+        List<TopServiceProjection> raw =
+                serviceListingRepository
+                        .getTopServices(PageRequest.of(0, 7))
+                        .getContent();
+
+        return raw.stream()
+                .map(p -> new TopServiceResponse(
+                        p.getTitle(),
+                        p.getCategory(),
+                        p.getBookings(),
+                        p.getRevenue()
+                ))
+                .toList();
+    }
+
+
+    /* =========================================================
+       AGGREGATED DASHBOARD ENDPOINT SUPPORT
+       ========================================================= */
+
+    @Override
+    public AdminDashboardResponse getDashboard() {
+        return new AdminDashboardResponse(
+                getDashboardStats(),
+                getRevenueTrend(),
+                getRatingDistribution(),
+                getCategoryShare(),
+                getTopServices()
         );
     }
-
-
-
-    @Override
-    public List<Map<String, Object>> getServicePerformance() {
-        List<Object[]> raw = serviceListingRepository.getServicePerformance();
-
-        return raw.stream()
-                .map(row -> Map.of(
-                        "category", row[0],
-                        "count", row[1]
-                ))
-                .toList();
-    }
-
-
-    @Override
-    public List<Map<String, Object>> getRatingDistribution() {
-        List<Object[]> raw = serviceListingRepository.getRatingDistribution();
-
-        return raw.stream()
-                .map(row -> Map.of(
-                        "stars", row[0],
-                        "count", row[1]
-                ))
-                .toList();
-    }
-
-
-
-
 }
