@@ -165,7 +165,7 @@ const MyServicesPage = () => {
               ? `${API_BASE}/api/provider/listings/${editingService.id}`
               : `${API_BASE}/api/provider/listings`,
           {
-            method: editingService ? "PUT" : "POST",
+            method: editingService ? "POST" : "POST",
             headers: {
               Authorization: `Bearer ${token}`,
               // ❌ not setting to raw data , we movin to multipart data
