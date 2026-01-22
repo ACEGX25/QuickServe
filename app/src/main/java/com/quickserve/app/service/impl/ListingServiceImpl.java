@@ -324,6 +324,56 @@ public class ListingServiceImpl implements ListingService {
                 .map(this::mapToServiceListingResponse);
     }
 
+    @Override
+    public ServiceListingResponse updateListing(
+            Long listingId,
+            UpdateListingRequest request,
+            MultipartFile image
+    ) {
+
+        User provider = getCurrentProvider();
+
+        ServiceListing listing = listingRepository
+                .findByIdAndProviderId(listingId, provider.getId())
+                .orElseThrow(() -> new RuntimeException("Listing not found or access denied"));
+
+        // Update fields if present
+        if (request.getTitle() != null)
+            listing.setTitle(request.getTitle());
+
+        if (request.getDescription() != null)
+            listing.setDescription(request.getDescription());
+
+        if (request.getPrice() != null)
+            listing.setPrice(request.getPrice());
+
+        if (request.getLocation() != null)
+            listing.setLocation(request.getLocation());
+
+        if (request.getCategory() != null)
+            listing.setCategory(request.getCategory());
+
+        // OPTIONAL image update
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = cloudinaryService.upload(image);
+
+            ListingImage listingImage = new ListingImage();
+            listingImage.setImageUrl(imageUrl);
+            listingImage.setListing(listing);
+
+            // ensure list exists
+            if (listing.getImages() == null) {
+                listing.setImages(new ArrayList<>());
+            }
+
+            listing.getImages().add(listingImage);
+        }
+
+        ServiceListing updated = listingRepository.save(listing);
+        return mapToServiceListingResponse(updated);
+    }
+
+
 
 
 }

@@ -32,5 +32,11 @@ public interface ListingService {
     ServiceListingResponse createListing(CreateListingRequest request, MultipartFile image);
     List<ProviderListingResponse> getProviderListings();
     ServiceListingResponse updateListing(Long listingId, UpdateListingRequest request);
+    ServiceListingResponse updateListing(
+            Long listingId,
+            UpdateListingRequest request,
+            MultipartFile image
+    );
+
     void deleteListing(Long listingId);
 }

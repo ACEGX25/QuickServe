@@ -55,15 +55,27 @@ public class ListingController {
 
     /* ================= UPDATE ================= */
 
-    @PutMapping("/{id}")
+    @PostMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @PreAuthorize("hasRole('PROVIDER')")
     public ResponseEntity<ServiceListingResponse> updateListing(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateListingRequest request
-    ) {
-        ServiceListingResponse response = listingService.updateListing(id, request);
+            @RequestPart("data") String data,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        UpdateListingRequest request =
+                mapper.readValue(data, UpdateListingRequest.class);
+
+        ServiceListingResponse response =
+                listingService.updateListing(id, request, image);
+
         return ResponseEntity.ok(response);
     }
+
 
     /* ================= DELETE ================= */
 
