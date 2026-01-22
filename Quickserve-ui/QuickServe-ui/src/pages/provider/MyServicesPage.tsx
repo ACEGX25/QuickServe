@@ -68,6 +68,8 @@ const MyServicesPage = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [serviceImage, setServiceImage] = useState<File | null>(null);
+
 
   const [formData, setFormData] = useState({
     title: "",
@@ -115,6 +117,8 @@ const MyServicesPage = () => {
         description: service.description,
         location: service.location ?? "",
       });
+
+      setServiceImage(null);
     } else {
       setEditingService(null);
       setFormData({
@@ -133,6 +137,28 @@ const MyServicesPage = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      price: Number(formData.price),
+      location: formData.location,
+    };
+
+    const multipartData = new FormData();
+
+// 🔑 REQUIRED by backend (@RequestPart("data"))
+    multipartData.append(
+        "data",
+        new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+
+// optional image
+    if (serviceImage) {
+      multipartData.append("image", serviceImage);
+    }
+
+
     try {
       const res = await fetch(
           editingService
@@ -141,18 +167,13 @@ const MyServicesPage = () => {
           {
             method: editingService ? "PUT" : "POST",
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
+              // ❌ not setting to raw data , we movin to multipart data
             },
-            body: JSON.stringify({
-              title: formData.title,
-              description: formData.description,
-              category: formData.category,
-              price: Number(formData.price),
-              location: formData.location,
-            }),
+            body: multipartData,
           }
       );
+
 
       if (!res.ok) throw new Error("Save failed");
 
@@ -313,6 +334,20 @@ const MyServicesPage = () => {
                 </Select>
 
               </div>
+
+              <div className="space-y-2">
+                <Label>Service Image</Label>
+                <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setServiceImage(e.target.files[0]);
+                      }
+                    }}
+                />
+              </div>
+
 
               <div className="space-y-2">
                 <Label>Location</Label>
