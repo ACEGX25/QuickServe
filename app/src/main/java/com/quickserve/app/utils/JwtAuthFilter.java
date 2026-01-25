@@ -34,11 +34,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         System.out.println("JWT FILTER HIT: " + request.getRequestURI());
         String path = request.getRequestURI();
 
-        // Skip public + auth endpoints
-        if (path.startsWith("/api/public") || path.startsWith("/api/auth") || path.startsWith("/api/listings")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        // Skip public + auth endpoints
+//        if (path.startsWith("/api/public") || path.startsWith("/api/auth") || path.startsWith("/api/listings")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -79,4 +79,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return request.getMethod().equalsIgnoreCase("OPTIONS")
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/api/public/")
+                || path.startsWith("/api/listings/");
+    }
+
 }
