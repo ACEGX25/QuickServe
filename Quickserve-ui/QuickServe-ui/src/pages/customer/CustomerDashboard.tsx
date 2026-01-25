@@ -60,7 +60,7 @@ type ServiceListing = {
 const CustomerDashboard = () => {
     const navigate = useNavigate();
 
-
+    const API_BASE =import.meta.env.VITE_API_BASE_URL;
 
     const [services, setServices] = useState<ServiceListing[]>([]);
     const [loading, setLoading] = useState(true);
@@ -74,7 +74,7 @@ const CustomerDashboard = () => {
             try {
                 setLoading(true);
                 const res = await fetch(
-                    `http://localhost:8080/api/listings/search?keyword=${encodeURIComponent(searchQuery)}&page=0&size=9`
+                    `${API_BASE}/listings/search?keyword=${encodeURIComponent(searchQuery)}&page=0&size=9`
                 );
                 const data = await res.json();
                 setServices(data.content);

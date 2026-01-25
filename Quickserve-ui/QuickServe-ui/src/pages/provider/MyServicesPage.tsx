@@ -47,7 +47,7 @@ interface Service {
 
 /* ================= CONSTANTS ================= */
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const categories = [
   { label: "Cleaning", value: "CLEANING" },
@@ -86,7 +86,7 @@ const MyServicesPage = () => {
       if (!token) return;
 
       try {
-        const res = await fetch(`${API_BASE}/api/provider/listings`, {
+        const res = await fetch(`${API_BASE}/provider/listings`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -162,8 +162,8 @@ const MyServicesPage = () => {
     try {
       const res = await fetch(
           editingService
-              ? `${API_BASE}/api/provider/listings/${editingService.id}`
-              : `${API_BASE}/api/provider/listings`,
+              ? `${API_BASE}/provider/listings/${editingService.id}`
+              : `${API_BASE}/provider/listings`,
           {
             method: editingService ? "POST" : "POST",
             headers: {
@@ -198,7 +198,7 @@ const MyServicesPage = () => {
 
     try {
       const res = await fetch(
-          `${API_BASE}/api/provider/listings/${id}`,
+          `${API_BASE}/provider/listings/${id}`,
           {
             method: "DELETE",
             headers: {

@@ -35,6 +35,8 @@ const navItems = [
   { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
+
 const ApprovalsPage = () => {
   const [stats, setStats] = useState<any>(null);
   const [pending, setPending] = useState<any[]>([]);
@@ -44,7 +46,7 @@ const ApprovalsPage = () => {
   const fetchApprovals = () => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/approvals", {
+    fetch(`${API_BASE}/admin/approvals`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
@@ -67,7 +69,7 @@ const ApprovalsPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/approvals/stats", {
+    fetch(`${API_BASE}/admin/approvals/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
@@ -76,13 +78,13 @@ const ApprovalsPage = () => {
 
 
   const approve = (id: number) =>
-      fetch(`http://localhost:8080/api/admin/approvals/${id}/approve`, {
+      fetch(`${API_BASE}/admin/approvals/${id}/approve`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       }).then(fetchApprovals);
 
   const reject = (id: number) =>
-      fetch(`http://localhost:8080/api/admin/approvals/${id}/reject`, {
+      fetch(`${API_BASE}/admin/approvals/${id}/reject`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       }).then(fetchApprovals);

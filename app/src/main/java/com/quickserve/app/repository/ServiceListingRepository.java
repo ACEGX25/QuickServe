@@ -29,33 +29,6 @@ public interface ServiceListingRepository extends JpaRepository<ServiceListing, 
     Optional<ServiceListing> findByIdAndProviderId(Long id, Long providerId);
     List<ServiceListing> findByApprovedFalse();
 
-    // ✅ NEW: Search API method with ratings
-//    @Query("""
-//        SELECT new com.quickserve.app.dto.ServiceListingResponse(
-//            s.id,
-//            s.title,
-//            s.description,
-//            s.location,
-//            s.category,
-//            s.price,
-//            s.provider.id,
-//            s.provider.username,
-//            s.avgRating,
-//            s.ratingCount
-//        )
-//        FROM ServiceListing s
-//        WHERE s.active = true
-//        AND (
-//            LOWER(s.title) LIKE LOWER(CONCAT('%', :query, '%'))
-//            OR LOWER(s.description) LIKE LOWER(CONCAT('%', :query, '%'))
-//            OR LOWER(s.location) LIKE LOWER(CONCAT('%', :query, '%'))
-//        )
-//        """)
-//    Page<ServiceListingResponse> search(
-//            @Param("query") String query,
-//            Pageable pageable
-//    );
-
     // Total revenue = sum of prices of active listings
     @Query("""
         SELECT COALESCE(SUM(s.price), 0)

@@ -60,12 +60,13 @@ const BookingDetails = () => {
   };
 
 
+  const API_BASE =import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchBooking = async () => {
       try {
         const res = await fetch(
-            `http://localhost:8080/api/bookings/my/${id}`,
+            `${API_BASE}/bookings/my/${id}`,
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,

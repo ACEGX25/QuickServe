@@ -64,6 +64,8 @@ const Availability = () => {
         sunday: { start: "00:00", end: "00:00", enabled: false },
     };
 
+    const API_BASE =import.meta.env.VITE_API_BASE_URL;
+
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const firstDayIndex = new Date(year, month, 1).getDay();
@@ -98,7 +100,7 @@ const Availability = () => {
         };
 
         try {
-            const res = await fetch("http://localhost:8080/api/calendar", {
+            const res = await fetch(`${API_BASE}/calendar`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

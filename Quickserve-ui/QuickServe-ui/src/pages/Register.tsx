@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 type UserRole = "customer" | "provider" | "admin";
 
-const API_BASE = "http://localhost:8080"
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 const roles = [
   {
@@ -109,7 +109,7 @@ const Register = () => {
     try {
       const roleEnum = formData.role.toUpperCase(); // CUSTOMER | PROVIDER | ADMIN
 
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

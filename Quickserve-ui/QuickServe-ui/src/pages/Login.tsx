@@ -11,7 +11,7 @@ import { QuickServeLogo } from "@/components/icons/AnimalIcons";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { useToast } from "@/hooks/use-toast";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

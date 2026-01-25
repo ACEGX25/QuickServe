@@ -63,6 +63,8 @@ const getStatusBadge = (status: BackendBookingStatus) => {
   );
 };
 
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
+
 /* ================= COMPONENT ================= */
 
 const BookingsPage = () => {
@@ -79,7 +81,7 @@ const BookingsPage = () => {
       try {
         setLoading(true);
         const res = await fetch(
-            "http://localhost:8080/api/bookings/provider",
+            `${API_BASE}/bookings/provider`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -108,7 +110,7 @@ const BookingsPage = () => {
 
     try {
       const res = await fetch(
-          `http://localhost:8080/api/bookings/${id}/${action}`,
+          `${API_BASE}/bookings/${id}/${action}`,
           {
             method: "PATCH",
             headers: {
@@ -140,7 +142,7 @@ const BookingsPage = () => {
 
     try {
       const res = await fetch(
-          `http://localhost:8080/api/bookings/${id}/completed`,
+          `${API_BASE}/bookings/${id}/completed`,
           {
             method: "PATCH", // or POST if backend expects POST
             headers: {

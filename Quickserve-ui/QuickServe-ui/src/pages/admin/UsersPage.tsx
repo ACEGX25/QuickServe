@@ -38,6 +38,8 @@ const getStatusVariant = (status: string) => {
   }
 };
 
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
+
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/admin" },
   { icon: Users, label: "Users", path: "/admin/users" },
@@ -55,7 +57,7 @@ const UsersPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/users", {
+    fetch(`${API_BASE}/admin/users`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
@@ -65,7 +67,7 @@ const UsersPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/users/stats", {
+    fetch(`${API_BASE}/api/admin/users/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())

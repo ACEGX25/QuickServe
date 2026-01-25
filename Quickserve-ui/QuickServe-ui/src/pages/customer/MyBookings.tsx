@@ -14,6 +14,8 @@ const statusStyles = {
   completed: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
+const API_BASE=import.meta.env.VITE_API_BASE_URL;
+
 const MyBookings = () => {
   const navigate = useNavigate();
 
@@ -31,7 +33,7 @@ const MyBookings = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:8080/api/bookings/my", {
+        const res = await fetch(`${API_BASE}/bookings/my`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

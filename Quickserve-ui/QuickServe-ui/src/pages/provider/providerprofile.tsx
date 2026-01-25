@@ -21,7 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 interface ProviderProfileData {
   firstName: string;
@@ -207,7 +207,7 @@ const ProviderProfile: React.FC = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/calendar`, {
+      const res = await fetch(`${API_BASE}/calendar`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

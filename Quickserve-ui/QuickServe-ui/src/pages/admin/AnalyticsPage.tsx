@@ -58,6 +58,8 @@ const navItems = [
   { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
+
 const AnalyticsPage = () => {
   const token = localStorage.getItem("token");
 
@@ -66,7 +68,7 @@ const AnalyticsPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/dashboard", {
+    fetch(`${API_BASE}/admin/dashboard`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())

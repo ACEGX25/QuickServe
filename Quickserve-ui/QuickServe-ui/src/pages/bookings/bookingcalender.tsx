@@ -7,7 +7,7 @@ import { generateSlotsFromWorkingHours } from "../provider/providerprofile";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
 
 const formatTimeRange = (time: string) => {
   const hour = parseInt(time.split(":")[0]);
@@ -86,7 +86,7 @@ const BookingDateTime = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:8080/api/bookings", {
+      const res = await fetch(`${API_BASE}/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

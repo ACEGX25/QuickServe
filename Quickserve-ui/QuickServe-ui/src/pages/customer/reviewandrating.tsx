@@ -55,6 +55,7 @@ const WriteReview = () => {
     "Friendly", "Expert", "Quick Service", "Recommended"
   ];
 
+  const API_BASE =import.meta.env.VITE_API_BASE_URL;
   const currentRatingInfo = ratingLabels.find(r => r.value === (hoverRating || rating));
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +89,7 @@ const WriteReview = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/reviews", {
+      const res = await fetch(`${API_BASE}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +131,7 @@ const WriteReview = () => {
   useEffect(() => {
     const fetchBooking = async () => {
       const res = await fetch(
-          `http://localhost:8080/api/bookings/my/${id}`,
+          `${API_BASE}/bookings/my/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -91,7 +91,7 @@ type DashboardResponse = {
 };
 
 
-
+const API_BASE =import.meta.env.VITE_API_BASE_URL;
 
 
 
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/dashboard", {
+    fetch(`${API_BASE}/admin/dashboard`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!token) return;
 
-    fetch("http://localhost:8080/api/admin/approvals", {
+    fetch(`${API_BASE}/admin/approvals`, {
       headers: { Authorization: `Bearer ${token}` },
     })
         .then(res => res.json())
