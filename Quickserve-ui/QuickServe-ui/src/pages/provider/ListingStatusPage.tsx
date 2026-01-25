@@ -1,8 +1,8 @@
-import {DashboardLayout} from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/layout/DashboardLayout.tsx";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/card.tsx";
-import { Badge } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/badge.tsx";
-import { Button } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/button.tsx";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/tabs.tsx";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CheckCircle,
   Clock,

@@ -1,11 +1,18 @@
 import { useState } from "react";
-import {DashboardLayout} from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/layout/DashboardLayout.tsx";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/card.tsx";
-import { Badge } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/badge.tsx";
-import { Button } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/button.tsx";
-import { Avatar, AvatarFallback } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/avatar.tsx";
-import { Progress } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/progress.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../tempD/QuickServe-ui/QuickServe-ui/src/components/ui/select.tsx";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import {
   Star,
   ThumbsUp,
